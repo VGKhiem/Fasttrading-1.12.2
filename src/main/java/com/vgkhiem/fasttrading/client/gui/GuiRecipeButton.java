@@ -27,12 +27,14 @@ public class GuiRecipeButton extends GuiButton {
    public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
       if (this.visible) {
          this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
-         GlStateManager.popMatrix();
+         GlStateManager.pushMatrix();
+         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+         GlStateManager.enableBlend();
          this.renderBackground(mc);
          this.renderItem(mc);
-         GlStateManager.pushMatrix();
+         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+         GlStateManager.popMatrix();
       }
-
    }
 
    private void renderBackground(Minecraft mc) {
@@ -62,27 +64,40 @@ public class GuiRecipeButton extends GuiButton {
       } else {
          this.drawTexturedModalRect(this.x + 36 + 15 - 11, this.y + 4, 83, 24, 28, 15);
       }
-
+      GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
    }
 
    private void renderItem(Minecraft mc) {
+      RenderItem renderItem = mc.getRenderItem();
+      float prevZLevel = renderItem.zLevel;
+      if (this.hasBeenMove) {
+         renderItem.zLevel = 120.0F;
+      } else {
+         renderItem.zLevel = 100.0F;
+      }
+
       GlStateManager.enableDepth();
-      RenderHelper.enableGUIStandardItemLighting();
       GlStateManager.enableRescaleNormal();
-      GlStateManager.enableColorMaterial();
-      GlStateManager.disableLighting();
+      RenderHelper.enableGUIStandardItemLighting();
+
       String s0 = this.recipe.getItemToBuy().getCount() == 1 ? "" : String.valueOf(this.recipe.getItemToBuy().getCount());
       String s1 = this.recipe.getSecondItemToBuy().getCount() == 1 ? "" : String.valueOf(this.recipe.getSecondItemToBuy().getCount());
       String s2 = this.recipe.getItemToSell().getCount() == 1 ? "" : String.valueOf(this.recipe.getItemToSell().getCount());
-      RenderItem renderItem = mc.getRenderItem();
+
       renderItem.renderItemAndEffectIntoGUI(this.recipe.getItemToBuy(), this.x + 5, this.y + 4);
       renderItem.renderItemAndEffectIntoGUI(this.recipe.getSecondItemToBuy(), this.x + 18 + 6 + 1, this.y + 4);
       renderItem.renderItemAndEffectIntoGUI(this.recipe.getItemToSell(), this.x + 36 + 12 + 28 + 2 - 10, this.y + 4);
       renderItem.renderItemOverlayIntoGUI(mc.fontRenderer, this.recipe.getItemToBuy(), this.x + 5, this.y + 4, s0);
       renderItem.renderItemOverlayIntoGUI(mc.fontRenderer, this.recipe.getSecondItemToBuy(), this.x + 18 + 6 + 1, this.y + 4, s1);
       renderItem.renderItemOverlayIntoGUI(mc.fontRenderer, this.recipe.getItemToSell(), this.x + 36 + 12 + 28 + 2 - 10, this.y + 4, s2);
+
+      RenderHelper.disableStandardItemLighting();
+      GlStateManager.disableRescaleNormal();
       GlStateManager.disableDepth();
       GlStateManager.disableLighting();
+      GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+
+      renderItem.zLevel = prevZLevel;
    }
 
    public boolean isMouseOver() {
@@ -97,7 +112,6 @@ public class GuiRecipeButton extends GuiButton {
 
    public void tryRenderItemTooltip(int mouseX, int mouseY) {
       if (this.visible) {
-         GlStateManager.disableDepth();
          if (mouseX >= this.x + 5 && mouseX <= this.x + 23 && mouseY >= this.y + 4 && mouseY <= this.y + 22) {
             this.renderItemTooltip(mouseX, mouseY, this.recipe.getItemToBuy());
          } else if (mouseX >= this.x + 18 + 6 + 1 && mouseX <= this.x + 18 + 6 + 1 + 18 && mouseY >= this.y + 4 && mouseY <= this.y + 22) {
@@ -106,7 +120,6 @@ public class GuiRecipeButton extends GuiButton {
             this.renderItemTooltip(mouseX, mouseY, this.recipe.getItemToSell());
          }
       }
-
    }
 
    public void tryProminent(Minecraft mc, int mouseX, int mouseY, float p, boolean shouldDraw) {
@@ -125,11 +138,11 @@ public class GuiRecipeButton extends GuiButton {
          }
 
          if (shouldDraw) {
-            mc.getRenderItem().zLevel = 120.0F;
+            float prevBtnZ = this.zLevel;
+            this.zLevel = 1.0F;
             this.drawButton(mc, mouseX, mouseY, p);
-            mc.getRenderItem().zLevel = 100.0F;
+            this.zLevel = prevBtnZ;
          }
       }
-
    }
 }

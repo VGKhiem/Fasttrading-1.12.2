@@ -29,8 +29,11 @@ public class GuiIconButton extends GuiButtonPlus {
    public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
       if (this.visible) {
          super.drawButton(mc, mouseX, mouseY, partialTicks);
+         GlStateManager.pushMatrix();
          GlStateManager.disableLighting();
          GlStateManager.disableDepth();
+         GlStateManager.enableBlend();
+         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
          mc.getTextureManager().bindTexture(this.icon);
          if (this.textureHeight == -1 || this.textureWidth == -1) {
             this.loadWidthAndHeight(mc.getResourceManager(), this.icon);
@@ -38,6 +41,8 @@ public class GuiIconButton extends GuiButtonPlus {
 
          Gui.drawScaledCustomSizeModalRect(this.x, this.y, 0.0F, 0.0F, this.textureWidth, this.textureHeight, this.width, this.height, (float)this.textureWidth, (float)this.textureHeight);
          GlStateManager.enableDepth();
+         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+         GlStateManager.popMatrix();
       }
 
    }
