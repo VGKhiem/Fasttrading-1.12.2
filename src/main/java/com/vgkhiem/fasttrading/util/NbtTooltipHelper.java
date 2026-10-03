@@ -50,24 +50,19 @@ public class NbtTooltipHelper {
 
    private static void appendEnchantments(ItemStack stack, NBTTagCompound tag, int hideFlags, List<String> tooltip) {
       NBTTagList enchList = null;
-      boolean isStored = false;
 
       if (stack.getItem() == Items.ENCHANTED_BOOK) {
          enchList = ItemEnchantedBook.getEnchantments(stack);
-         isStored = true;
       }
       if (enchList == null || enchList.isEmpty()) {
          if (tag.hasKey("ench", 9)) {
             enchList = tag.getTagList("ench", 10);
-            isStored = false;
          } else if (tag.hasKey("StoredEnchantments", 9)) {
             enchList = tag.getTagList("StoredEnchantments", 10);
-            isStored = true;
          }
       }
 
       if (enchList != null && !enchList.isEmpty()) {
-         boolean isHidden = isStored ? ((hideFlags & 32) != 0 || (hideFlags & 1) != 0) : ((hideFlags & 1) != 0);
          tooltip.add("§dEnchantments:");
          for (int i = 0; i < enchList.tagCount(); ++i) {
             NBTTagCompound enchTag = enchList.getCompoundTagAt(i);
@@ -77,9 +72,9 @@ public class NbtTooltipHelper {
             if (ench != null) {
                String translated = ench.getTranslatedName(lvl);
                String regName = ench.getRegistryName() != null ? ench.getRegistryName().toString() : ("id:" + id);
-               tooltip.add("  " + (isHidden ? "§c[Ẩn] " : "§7- ") + "§b" + translated + " §8[" + regName + " | id:" + id + ", lvl:" + lvl + "]");
+               tooltip.add("  §b" + translated + " §8[" + regName + " | id:" + id + ", lvl:" + lvl + "]");
             } else {
-               tooltip.add("  " + (isHidden ? "§c[Ẩn] " : "§7- ") + "§c[Enchant #" + id + "] Cấp: " + lvl);
+               tooltip.add("  §c[Enchant #" + id + "] Cấp: " + lvl);
             }
          }
       }
@@ -89,7 +84,6 @@ public class NbtTooltipHelper {
       if (tag.hasKey("AttributeModifiers", 9)) {
          NBTTagList attrList = tag.getTagList("AttributeModifiers", 10);
          if (!attrList.isEmpty()) {
-            boolean isHidden = (hideFlags & 2) != 0;
             tooltip.add("§6Attribute Modifiers:");
             for (int i = 0; i < attrList.tagCount(); ++i) {
                NBTTagCompound attr = attrList.getCompoundTagAt(i);
@@ -98,11 +92,9 @@ public class NbtTooltipHelper {
                int operation = attr.getInteger("Operation");
                String slot = attr.getString("Slot");
                String formattedAmt = formatAmount(name, amount, operation);
-               tooltip.add("  " + (isHidden ? "§c[Ẩn] " : "§7- ") + "§e" + name + ": §a" + formattedAmt + (slot.isEmpty() ? "" : " §8(Slot: " + slot + ")"));
+               tooltip.add("  §e" + name + ": §a" + formattedAmt + (slot.isEmpty() ? "" : " §8(Slot: " + slot + ")"));
             }
          }
-      } else if ((hideFlags & 2) != 0) {
-         tooltip.add("§6Attribute Modifiers: §c(Bị ẩn toàn bộ bởi HideFlags)");
       }
    }
 
@@ -132,22 +124,18 @@ public class NbtTooltipHelper {
 
    private static void appendUnbreakable(NBTTagCompound tag, int hideFlags, List<String> tooltip) {
       if (tag.getBoolean("Unbreakable")) {
-         if ((hideFlags & 4) != 0) {
-            tooltip.add("§b[Ẩn] Không thể phá hủy (Unbreakable: true)");
-         } else {
-            tooltip.add("§bKhông thể phá hủy (Unbreakable: true)");
-         }
+         tooltip.add("§bKhông thể phá hủy (Unbreakable: true)");
       }
    }
 
    private static void appendCanDestroyAndPlace(NBTTagCompound tag, int hideFlags, List<String> tooltip) {
       if ((hideFlags & 8) != 0 && tag.hasKey("CanDestroy", 9)) {
          NBTTagList list = tag.getTagList("CanDestroy", 8);
-         tooltip.add("§a[Ẩn] Có thể phá hủy: §7" + list.tagCount() + " khối");
+         tooltip.add("§aCó thể phá hủy: §7" + list.tagCount() + " khối");
       }
       if ((hideFlags & 16) != 0 && tag.hasKey("CanPlaceOn", 9)) {
          NBTTagList list = tag.getTagList("CanPlaceOn", 8);
-         tooltip.add("§a[Ẩn] Có thể đặt lên: §7" + list.tagCount() + " khối");
+         tooltip.add("§aCó thể đặt lên: §7" + list.tagCount() + " khối");
       }
    }
 }
