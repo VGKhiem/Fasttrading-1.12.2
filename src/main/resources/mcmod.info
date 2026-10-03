@@ -1,0 +1,16 @@
+[
+ {
+   "modid": "fasttrading",
+   "name": "TCFastTrading",
+   "description": "TC FastTrading mod.",
+   "version": "2.0",
+   "mcversion": "[1.8,1.12.2]",
+   "url": "",
+   "updateUrl": "",
+   "authorList": ["Dazo66"],
+   "credits": "",
+   "logoFile": "",
+   "screenshots": [],
+   "dependencies": []
+ }
+ ]
