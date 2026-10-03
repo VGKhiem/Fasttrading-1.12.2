@@ -1,8 +1,8 @@
-package com.dazo66.fasttrading.util;
+package com.vgkhiem.fasttrading.util;
 
-import com.dazo66.fasttrading.FastTrading;
-import com.dazo66.fasttrading.client.gui.GuiMerchantOverride;
-import com.dazo66.fasttrading.config.ConfigJson;
+import com.vgkhiem.fasttrading.FastTrading;
+import com.vgkhiem.fasttrading.client.gui.GuiMerchantOverride;
+import com.vgkhiem.fasttrading.config.ConfigJson;
 import java.util.HashMap;
 import java.util.List;
 import net.minecraft.client.Minecraft;
@@ -53,7 +53,7 @@ public class TradingHelper {
             continue;
          }
          ItemStack temp = slot.getStack();
-         if (DazoUtils.areItemEqualIgnoreCount(temp, itemStack)) {
+         if (VGKhiemUtils.areItemEqualIgnoreCount(temp, itemStack)) {
             if (temp.getCount() >= minCount) {
                return slot;
             }
@@ -85,7 +85,7 @@ public class TradingHelper {
       }
       boolean hasBuy2 = recipe.hasSecondItemToBuy();
       ItemStack buy2Item = hasBuy2 ? recipe.getSecondItemToBuy() : ItemStack.EMPTY;
-      boolean sameItem = hasBuy2 && DazoUtils.areItemEqualIgnoreCount(buy1Item, buy2Item);
+      boolean sameItem = hasBuy2 && VGKhiemUtils.areItemEqualIgnoreCount(buy1Item, buy2Item);
 
       if (!hasBuy2) {
          Slot slot1 = this.findItem(buy1Item, buy1Item.getCount(), null);

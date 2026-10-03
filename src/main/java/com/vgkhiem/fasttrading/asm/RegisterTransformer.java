@@ -1,6 +1,6 @@
-package com.dazo66.fasttrading.asm;
+package com.vgkhiem.fasttrading.asm;
 
-import com.dazo66.fasttrading.event.SetMerchantListEvent;
+import com.vgkhiem.fasttrading.event.SetMerchantListEvent;
 import java.util.Arrays;
 import java.util.List;
 import org.objectweb.asm.ClassReader;

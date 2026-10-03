@@ -1,4 +1,4 @@
-package com.dazo66.fasttrading.config;
+package com.vgkhiem.fasttrading.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

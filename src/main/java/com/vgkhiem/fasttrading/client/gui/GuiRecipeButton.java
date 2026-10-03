@@ -1,7 +1,7 @@
-package com.dazo66.fasttrading.client.gui;
+package com.vgkhiem.fasttrading.client.gui;
 
-import com.dazo66.fasttrading.client.audio.FakeSubtitleSound;
-import com.dazo66.fasttrading.config.ConfigJson;
+import com.vgkhiem.fasttrading.client.audio.FakeSubtitleSound;
+import com.vgkhiem.fasttrading.config.ConfigJson;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;

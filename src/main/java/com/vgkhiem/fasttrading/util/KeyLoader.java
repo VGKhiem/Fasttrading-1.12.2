@@ -1,4 +1,4 @@
-package com.dazo66.fasttrading.util;
+package com.vgkhiem.fasttrading.util;
 
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.client.registry.ClientRegistry;

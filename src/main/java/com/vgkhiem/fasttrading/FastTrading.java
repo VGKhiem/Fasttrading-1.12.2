@@ -1,8 +1,8 @@
-package com.dazo66.fasttrading;
+package com.vgkhiem.fasttrading;
 
-import com.dazo66.fasttrading.config.ConfigLoader;
-import com.dazo66.fasttrading.eventhandler.FastTradingEventHandler;
-import com.dazo66.fasttrading.util.KeyLoader;
+import com.vgkhiem.fasttrading.config.ConfigLoader;
+import com.vgkhiem.fasttrading.eventhandler.FastTradingEventHandler;
+import com.vgkhiem.fasttrading.util.KeyLoader;
 import java.io.IOException;
 import net.minecraft.entity.NpcMerchant;
 import net.minecraftforge.common.MinecraftForge;

@@ -1,4 +1,4 @@
-package com.dazo66.fasttrading.client.gui;
+package com.vgkhiem.fasttrading.client.gui;
 
 import java.util.Arrays;
 import net.minecraft.client.Minecraft;

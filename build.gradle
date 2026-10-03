@@ -14,7 +14,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 
 version = "2.0"
-group = "com.dazo66.fasttrading"
+group = "com.vgkhiem.fasttrading"
 archivesBaseName = "FastTrading-1.12.2"
 
 sourceCompatibility = targetCompatibility = '1.8'
@@ -33,7 +33,7 @@ jar {
         attributes([
             "FMLCorePluginContainsFMLMod": "true",
             "FMLAT": "fasttrading_at.cfg",
-            "FMLCorePlugin": "com.dazo66.fasttrading.asm.CoreModBase"
+            "FMLCorePlugin": "com.vgkhiem.fasttrading.asm.CoreModBase"
         ])
     }
 }

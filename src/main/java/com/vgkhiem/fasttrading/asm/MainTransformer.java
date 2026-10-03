@@ -1,4 +1,4 @@
-package com.dazo66.fasttrading.asm;
+package com.vgkhiem.fasttrading.asm;
 
 import com.google.common.base.Strings;
 import java.util.HashMap;

@@ -1,9 +1,9 @@
-package com.dazo66.fasttrading.client.gui;
+package com.vgkhiem.fasttrading.client.gui;
 
-import com.dazo66.fasttrading.FastTrading;
-import com.dazo66.fasttrading.config.ConfigJson;
-import com.dazo66.fasttrading.util.DazoUtils;
-import com.dazo66.fasttrading.util.TradingHelper;
+import com.vgkhiem.fasttrading.FastTrading;
+import com.vgkhiem.fasttrading.config.ConfigJson;
+import com.vgkhiem.fasttrading.util.VGKhiemUtils;
+import com.vgkhiem.fasttrading.util.TradingHelper;
 import io.netty.buffer.Unpooled;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -205,12 +205,12 @@ public class GuiMerchantOverride extends GuiMerchant {
       ResourceLocation SUBTRACT = new ResourceLocation("fasttrading", "textures/gui/subtract.png");
       ResourceLocation LOCK = new ResourceLocation("fasttrading", "textures/gui/lock.png");
       ResourceLocation UNLOCK = new ResourceLocation("fasttrading", "textures/gui/unlock.png");
-      this.onButton = new GuiIconButton(250, this.guiLeft + 3, this.guiTop + 3, 10, 10, DazoUtils.tooltipI18n("fasttrading.tooltip.enablebutton"), ON);
-      this.offButton = new GuiIconButton(251, this.guiLeft + 3, this.guiTop + 3, 10, 10, DazoUtils.tooltipI18n("fasttrading.tooltip.disablebutton"), OFF);
-      this.plusButton = new GuiIconButton(252, this.guiLeft + 14, this.guiTop + 3, 10, 10, DazoUtils.tooltipI18n("fasttrading.tooltip.addbutton"), PLUS);
-      this.subtractButton = new GuiIconButton(253, this.guiLeft + 14, this.guiTop + 3, 10, 10, DazoUtils.tooltipI18n("fasttrading.tooltip.removebutton"), SUBTRACT);
-      this.lockButton = new GuiIconButton(254, this.guiLeft + 25, this.guiTop + 3, 10, 10, DazoUtils.tooltipI18n("fasttrading.tooltip.lockbutton"), LOCK);
-      this.unlockButton = new GuiIconButton(255, this.guiLeft + 25, this.guiTop + 3, 10, 10, DazoUtils.tooltipI18n("fasttrading.tooltip.unlockbutton"), UNLOCK);
+      this.onButton = new GuiIconButton(250, this.guiLeft + 3, this.guiTop + 3, 10, 10, VGKhiemUtils.tooltipI18n("fasttrading.tooltip.enablebutton"), ON);
+      this.offButton = new GuiIconButton(251, this.guiLeft + 3, this.guiTop + 3, 10, 10, VGKhiemUtils.tooltipI18n("fasttrading.tooltip.disablebutton"), OFF);
+      this.plusButton = new GuiIconButton(252, this.guiLeft + 14, this.guiTop + 3, 10, 10, VGKhiemUtils.tooltipI18n("fasttrading.tooltip.addbutton"), PLUS);
+      this.subtractButton = new GuiIconButton(253, this.guiLeft + 14, this.guiTop + 3, 10, 10, VGKhiemUtils.tooltipI18n("fasttrading.tooltip.removebutton"), SUBTRACT);
+      this.lockButton = new GuiIconButton(254, this.guiLeft + 25, this.guiTop + 3, 10, 10, VGKhiemUtils.tooltipI18n("fasttrading.tooltip.lockbutton"), LOCK);
+      this.unlockButton = new GuiIconButton(255, this.guiLeft + 25, this.guiTop + 3, 10, 10, VGKhiemUtils.tooltipI18n("fasttrading.tooltip.unlockbutton"), UNLOCK);
       this.addButton(this.onButton);
       this.addButton(this.offButton);
       this.addButton(this.plusButton);

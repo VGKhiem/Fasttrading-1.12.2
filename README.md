@@ -2,6 +2,8 @@
 
 A Minecraft Forge 1.12.2 client-side mod that optimizes and accelerates villager trading transactions.
 
+**Author**: VGKhiem
+
 ## Features
 - **Fast Trading Interface**: Custom villager trading GUI sidebar for quick navigation and one-click/double-click trading.
 - **Price Locking & Auto-Trading**: Lock desired trade prices and automate repeated trades.

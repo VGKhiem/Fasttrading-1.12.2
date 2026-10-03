@@ -1,7 +1,7 @@
-package com.dazo66.fasttrading.config;
+package com.vgkhiem.fasttrading.config;
 
-import com.dazo66.fasttrading.FastTrading;
-import com.dazo66.fasttrading.util.DazoUtils;
+import com.vgkhiem.fasttrading.FastTrading;
+import com.vgkhiem.fasttrading.util.VGKhiemUtils;
 import java.util.Arrays;
 import java.util.List;
 import net.minecraft.client.Minecraft;
@@ -36,12 +36,12 @@ public class ConfigJson implements Cloneable {
       ItemStack buy11 = simpleRecipe.buy1.getItemStack();
       ItemStack buy22 = simpleRecipe.buy2.getItemStack();
       ItemStack sell1 = simpleRecipe.sell.getItemStack();
-      if (!DazoUtils.areItemEqualIgnoreCount(buy11, recipe.getItemToBuy())) {
+      if (!VGKhiemUtils.areItemEqualIgnoreCount(buy11, recipe.getItemToBuy())) {
          return null;
-      } else if (!DazoUtils.areItemEqualIgnoreCount(sell1, recipe.getItemToSell())) {
+      } else if (!VGKhiemUtils.areItemEqualIgnoreCount(sell1, recipe.getItemToSell())) {
          return null;
       } else {
-         return recipe.hasSecondItemToBuy() && !DazoUtils.areItemEqualIgnoreCount(buy22, recipe.getSecondItemToBuy()) ? null : simpleRecipe;
+         return recipe.hasSecondItemToBuy() && !VGKhiemUtils.areItemEqualIgnoreCount(buy22, recipe.getSecondItemToBuy()) ? null : simpleRecipe;
       }
    }
 

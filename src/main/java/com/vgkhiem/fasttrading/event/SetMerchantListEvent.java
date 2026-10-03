@@ -1,4 +1,4 @@
-package com.dazo66.fasttrading.event;
+package com.vgkhiem.fasttrading.event;
 
 import javax.annotation.Nullable;
 import net.minecraft.village.MerchantRecipeList;

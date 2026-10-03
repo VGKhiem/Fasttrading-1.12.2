@@ -1,4 +1,4 @@
-package com.dazo66.fasttrading.client.audio;
+package com.vgkhiem.fasttrading.client.audio;
 
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.PositionedSound;

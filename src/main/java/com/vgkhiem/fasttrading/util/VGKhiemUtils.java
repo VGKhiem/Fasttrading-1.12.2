@@ -1,4 +1,4 @@
-package com.dazo66.fasttrading.util;
+package com.vgkhiem.fasttrading.util;
 
 import java.util.Iterator;
 import net.minecraft.client.resources.I18n;
@@ -12,7 +12,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagLongArray;
 import net.minecraft.nbt.NBTTagString;
 
-public class DazoUtils {
+public class VGKhiemUtils {
    public static String[] tooltipI18n(String s, Object... args) {
       return I18n.format(s, args).replace("\\n", "##&&").split("##&&");
    }

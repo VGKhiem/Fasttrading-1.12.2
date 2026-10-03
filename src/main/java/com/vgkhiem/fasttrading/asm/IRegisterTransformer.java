@@ -1,4 +1,4 @@
-package com.dazo66.fasttrading.asm;
+package com.vgkhiem.fasttrading.asm;
 
 import java.util.List;
 import net.minecraft.launchwrapper.IClassTransformer;
