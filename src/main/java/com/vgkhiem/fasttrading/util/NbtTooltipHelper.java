@@ -86,8 +86,9 @@ public class NbtTooltipHelper {
                double amount = attr.getDouble("Amount");
                int operation = attr.getInteger("Operation");
                String slot = attr.getString("Slot");
+               String slotDisplay = slot.isEmpty() ? "all" : slot;
                String formattedAmt = formatAmount(name, amount, operation);
-               tooltip.add("  §e" + name + ": §a" + formattedAmt + (slot.isEmpty() ? "" : " §8(Slot: " + slot + ")"));
+               tooltip.add("  §e" + name + ": §a" + formattedAmt + " §8(Slot: " + slotDisplay + ")");
             }
          }
       }
