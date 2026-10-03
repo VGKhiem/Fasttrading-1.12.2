@@ -1,5 +1,6 @@
 package com.vgkhiem.fasttrading.util;
 
+import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.init.Items;
@@ -60,17 +61,24 @@ public class NbtTooltipHelper {
       }
 
       if (enchList != null && !enchList.isEmpty()) {
-         tooltip.add("§dEnchantments:");
+         List<String> validEnchants = new ArrayList<String>();
          for (int i = 0; i < enchList.tagCount(); ++i) {
             NBTTagCompound enchTag = enchList.getCompoundTagAt(i);
             short id = enchTag.getShort("id");
             short lvl = enchTag.getShort("lvl");
+            if (lvl <= 0) {
+               continue;
+            }
             Enchantment ench = Enchantment.getEnchantmentByID(id);
             if (ench != null) {
-               tooltip.add("  §b" + ench.getTranslatedName(lvl));
+               validEnchants.add("  §b" + ench.getTranslatedName(lvl));
             } else {
-               tooltip.add("  §cEnchant #" + id + " Cấp: " + lvl);
+               validEnchants.add("  §cEnchant #" + id + " Cấp: " + lvl);
             }
+         }
+         if (!validEnchants.isEmpty()) {
+            tooltip.add("§dEnchantments:");
+            tooltip.addAll(validEnchants);
          }
       }
    }
