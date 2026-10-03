@@ -4,10 +4,12 @@ import com.vgkhiem.fasttrading.FastTrading;
 import com.vgkhiem.fasttrading.client.gui.GuiMerchantOverride;
 import com.vgkhiem.fasttrading.event.SetMerchantListEvent;
 import com.vgkhiem.fasttrading.util.KeyLoader;
+import com.vgkhiem.fasttrading.util.NbtTooltipHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMerchant;
 import net.minecraft.entity.IMerchant;
 import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -48,5 +50,13 @@ public class FastTradingEventHandler {
          FastTrading.configLoader.save();
       }
 
+   }
+
+   @SideOnly(Side.CLIENT)
+   @SubscribeEvent
+   public void onItemTooltip(ItemTooltipEvent event) {
+      if (event.getItemStack() != null) {
+         NbtTooltipHelper.handleTooltip(event.getItemStack(), event.getToolTip());
+      }
    }
 }
