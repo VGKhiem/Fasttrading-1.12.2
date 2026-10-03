@@ -41,10 +41,7 @@ public class NbtTooltipHelper {
       // 2. Attribute Modifiers (hỗ trợ % cho Operation 1, 2 và Knockback Resistance)
       appendAttributes(tag, hideFlags, tooltip);
 
-      // 3. Unbreakable
-      appendUnbreakable(tag, hideFlags, tooltip);
-
-      // 4. CanDestroy / CanPlaceOn
+      // 3. CanDestroy / CanPlaceOn
       appendCanDestroyAndPlace(tag, hideFlags, tooltip);
    }
 
@@ -119,12 +116,6 @@ public class NbtTooltipHelper {
             else if (s.endsWith("0")) s = s.substring(0, s.length() - 1);
             return (amount >= 0 ? "+" : "") + s;
          }
-      }
-   }
-
-   private static void appendUnbreakable(NBTTagCompound tag, int hideFlags, List<String> tooltip) {
-      if (tag.getBoolean("Unbreakable")) {
-         tooltip.add("§bKhông thể phá hủy (Unbreakable: true)");
       }
    }
 
