@@ -67,11 +67,9 @@ public class NbtTooltipHelper {
             short lvl = enchTag.getShort("lvl");
             Enchantment ench = Enchantment.getEnchantmentByID(id);
             if (ench != null) {
-               String translated = ench.getTranslatedName(lvl);
-               String regName = ench.getRegistryName() != null ? ench.getRegistryName().toString() : ("id:" + id);
-               tooltip.add("  §b" + translated + " §8[" + regName + " | id:" + id + ", lvl:" + lvl + "]");
+               tooltip.add("  §b" + ench.getTranslatedName(lvl));
             } else {
-               tooltip.add("  §c[Enchant #" + id + "] Cấp: " + lvl);
+               tooltip.add("  §cEnchant #" + id + " Cấp: " + lvl);
             }
          }
       }
