@@ -23,7 +23,7 @@ public class NbtTooltipHelper {
          return;
       }
 
-      // 1. Không hiện dòng ghi chú khi không giữ Alt
+      // Không hiển thị ghi chú khi không giữ Alt
       if (!isAltKeyDown()) {
          return;
       }
@@ -35,16 +35,16 @@ public class NbtTooltipHelper {
 
       int hideFlags = tag.getInteger("HideFlags");
 
-      // 2. Chỉ hiện Enchant ẩn / chi tiết
+      // 1. Enchantments
       appendEnchantments(stack, tag, hideFlags, tooltip);
 
-      // 3. Chỉ hiện Thuộc tính ẩn (AttributeModifiers)
+      // 2. Attribute Modifiers (hỗ trợ % cho Operation 1, 2 và Knockback Resistance)
       appendAttributes(tag, hideFlags, tooltip);
 
-      // 4. Chỉ hiện Không thể phá hủy ẩn (Unbreakable)
+      // 3. Unbreakable
       appendUnbreakable(tag, hideFlags, tooltip);
 
-      // 5. Chỉ hiện CanDestroy / CanPlaceOn nếu bị ẩn
+      // 4. CanDestroy / CanPlaceOn
       appendCanDestroyAndPlace(tag, hideFlags, tooltip);
    }
 
@@ -68,7 +68,7 @@ public class NbtTooltipHelper {
 
       if (enchList != null && !enchList.isEmpty()) {
          boolean isHidden = isStored ? ((hideFlags & 32) != 0 || (hideFlags & 1) != 0) : ((hideFlags & 1) != 0);
-         tooltip.add("§d§l[Enchantment] " + (isHidden ? "§c§l(BỊ ẨN BỞI HIDEFLAGS):" : "§7(Chi tiết):"));
+         tooltip.add("§dEnchantments:");
          for (int i = 0; i < enchList.tagCount(); ++i) {
             NBTTagCompound enchTag = enchList.getCompoundTagAt(i);
             short id = enchTag.getShort("id");
@@ -90,25 +90,50 @@ public class NbtTooltipHelper {
          NBTTagList attrList = tag.getTagList("AttributeModifiers", 10);
          if (!attrList.isEmpty()) {
             boolean isHidden = (hideFlags & 2) != 0;
-            tooltip.add(isHidden ? "§6§l[Thuộc tính bị ẩn (AttributeModifiers)]:" : "§6§l[Thuộc tính (AttributeModifiers)]:");
+            tooltip.add("§6Attribute Modifiers:");
             for (int i = 0; i < attrList.tagCount(); ++i) {
                NBTTagCompound attr = attrList.getCompoundTagAt(i);
                String name = attr.getString("AttributeName");
                double amount = attr.getDouble("Amount");
+               int operation = attr.getInteger("Operation");
                String slot = attr.getString("Slot");
-               String formattedAmt = (amount >= 0 ? "+" : "") + String.format("%.2f", amount);
+               String formattedAmt = formatAmount(name, amount, operation);
                tooltip.add("  " + (isHidden ? "§c[Ẩn] " : "§7- ") + "§e" + name + ": §a" + formattedAmt + (slot.isEmpty() ? "" : " §8(Slot: " + slot + ")"));
             }
          }
       } else if ((hideFlags & 2) != 0) {
-         tooltip.add("§6§l[Thuộc tính]: §c(Bị ẩn toàn bộ bởi HideFlags)");
+         tooltip.add("§6Attribute Modifiers: §c(Bị ẩn toàn bộ bởi HideFlags)");
+      }
+   }
+
+   private static String formatAmount(String attrName, double amount, int operation) {
+      boolean isPercent = (operation == 1 || operation == 2 || "generic.knockbackResistance".equals(attrName));
+      if (isPercent) {
+         double pct = amount * 100.0;
+         if (Math.abs(pct - Math.round(pct)) < 1e-6) {
+            return (pct >= 0 ? "+" : "") + Math.round(pct) + "%";
+         } else {
+            String s = String.format("%.2f", pct);
+            if (s.endsWith(".00")) s = s.substring(0, s.length() - 3);
+            else if (s.endsWith("0")) s = s.substring(0, s.length() - 1);
+            return (pct >= 0 ? "+" : "") + s + "%";
+         }
+      } else {
+         if (Math.abs(amount - Math.round(amount)) < 1e-6) {
+            return (amount >= 0 ? "+" : "") + Math.round(amount);
+         } else {
+            String s = String.format("%.2f", amount);
+            if (s.endsWith(".00")) s = s.substring(0, s.length() - 3);
+            else if (s.endsWith("0")) s = s.substring(0, s.length() - 1);
+            return (amount >= 0 ? "+" : "") + s;
+         }
       }
    }
 
    private static void appendUnbreakable(NBTTagCompound tag, int hideFlags, List<String> tooltip) {
       if (tag.getBoolean("Unbreakable")) {
          if ((hideFlags & 4) != 0) {
-            tooltip.add("§b§l[Ẩn] §bKhông thể phá hủy (Unbreakable: true)");
+            tooltip.add("§b[Ẩn] Không thể phá hủy (Unbreakable: true)");
          } else {
             tooltip.add("§bKhông thể phá hủy (Unbreakable: true)");
          }
@@ -118,11 +143,11 @@ public class NbtTooltipHelper {
    private static void appendCanDestroyAndPlace(NBTTagCompound tag, int hideFlags, List<String> tooltip) {
       if ((hideFlags & 8) != 0 && tag.hasKey("CanDestroy", 9)) {
          NBTTagList list = tag.getTagList("CanDestroy", 8);
-         tooltip.add("§a§l[Ẩn] Có thể phá hủy: §7" + list.tagCount() + " khối");
+         tooltip.add("§a[Ẩn] Có thể phá hủy: §7" + list.tagCount() + " khối");
       }
       if ((hideFlags & 16) != 0 && tag.hasKey("CanPlaceOn", 9)) {
          NBTTagList list = tag.getTagList("CanPlaceOn", 8);
-         tooltip.add("§a§l[Ẩn] Có thể đặt lên: §7" + list.tagCount() + " khối");
+         tooltip.add("§a[Ẩn] Có thể đặt lên: §7" + list.tagCount() + " khối");
       }
    }
 }
