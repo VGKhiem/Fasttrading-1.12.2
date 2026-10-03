@@ -120,7 +120,6 @@ public class TradingHelper {
          return true;
       }
 
-      // Xử lý trường hợp 2 vật phẩm đầu vào cùng loại (vanilla hoặc custom)
       int req1 = buy1Item.getCount();
       int req2 = buy2Item.getCount();
 
@@ -129,7 +128,6 @@ public class TradingHelper {
          return false;
       }
 
-      // Tìm slot thứ 2 khác slot 1
       Slot slot2 = this.findItem(buy2Item, req2, slot1);
       if (slot2 != null) {
          if (tradeAll) {
@@ -142,7 +140,6 @@ public class TradingHelper {
          return true;
       }
 
-      // Nếu chỉ có 1 slot: Gom toàn bộ vào slot 1 trước
       this.gui.click(slot1, 0, ClickType.PICKUP);
       this.gui.click(slot1, 0, ClickType.PICKUP_ALL);
       this.gui.click(slot1, 0, ClickType.PICKUP);

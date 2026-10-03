@@ -24,7 +24,6 @@ public class NbtTooltipHelper {
          return;
       }
 
-      // Không hiển thị ghi chú khi không giữ Alt
       if (!isAltKeyDown()) {
          return;
       }
@@ -36,13 +35,8 @@ public class NbtTooltipHelper {
 
       int hideFlags = tag.getInteger("HideFlags");
 
-      // 1. Enchantments
       appendEnchantments(stack, tag, hideFlags, tooltip);
-
-      // 2. Attribute Modifiers (hỗ trợ % cho Operation 1, 2 và Knockback Resistance)
       appendAttributes(tag, hideFlags, tooltip);
-
-      // 3. CanDestroy / CanPlaceOn
       appendCanDestroyAndPlace(tag, hideFlags, tooltip);
    }
 
