@@ -2,7 +2,6 @@ package com.vgkhiem.fasttrading.client.gui;
 
 import com.vgkhiem.fasttrading.FastTrading;
 import com.vgkhiem.fasttrading.config.ConfigJson;
-import com.vgkhiem.fasttrading.util.OptiFineHelper;
 import com.vgkhiem.fasttrading.util.TradingHelper;
 import com.vgkhiem.fasttrading.util.VGKhiemUtils;
 import io.netty.buffer.Unpooled;
@@ -10,8 +9,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiMerchant;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.IMerchant;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ClickType;
@@ -37,7 +34,6 @@ public class GuiMerchantOverride extends GuiMerchant {
    private GuiIconButton subtractButton;
    private GuiIconButton lockButton;
    private GuiIconButton unlockButton;
-   private boolean savedFastRender = false;
 
    public GuiMerchantOverride(InventoryPlayer inventoryPlayer, IMerchant iMerchant, World worldIn) {
       super(inventoryPlayer, iMerchant, worldIn);
@@ -45,10 +41,6 @@ public class GuiMerchantOverride extends GuiMerchant {
    }
 
    public void initGui() {
-      if (OptiFineHelper.isFastRender()) {
-         this.savedFastRender = true;
-         OptiFineHelper.setFastRender(false);
-      }
       super.initGui();
       this.recipeButtonList.clear();
       this.addMerchantButton(this.merchantRecipeList);
@@ -61,7 +53,6 @@ public class GuiMerchantOverride extends GuiMerchant {
 
    public void drawScreen(int mouseX, int mouseY, float p) {
       super.drawScreen(mouseX, mouseY, p);
-      GlStateManager.pushMatrix();
       GuiButton button0 = this.getFirstButton();
       if (null != button0 && button0 instanceof GuiRecipeButton) {
          ((GuiRecipeButton)button0).tryProminent(this.mc, mouseX, mouseY, p, true);
@@ -77,9 +68,6 @@ public class GuiMerchantOverride extends GuiMerchant {
             ((GuiRecipeButton)button).tryProminent(this.mc, mouseX, mouseY, p, false);
          }
       }
-      RenderHelper.disableStandardItemLighting();
-      GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-      GlStateManager.popMatrix();
    }
 
    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
@@ -141,10 +129,6 @@ public class GuiMerchantOverride extends GuiMerchant {
 
    public void onGuiClosed() {
       super.onGuiClosed();
-      if (this.savedFastRender) {
-         OptiFineHelper.setFastRender(true);
-         this.savedFastRender = false;
-      }
       FastTrading.configLoader.save();
    }
 
