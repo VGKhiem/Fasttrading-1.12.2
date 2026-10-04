@@ -17,6 +17,12 @@ set APP_HOME=%DIRNAME%
 set DEFAULT_JVM_OPTS=
 
 @rem Find java.exe
+if exist "C:\Program Files\Eclipse Adoptium\jdk-8.0.492.9-hotspot\bin\java.exe" (
+    set "JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-8.0.492.9-hotspot"
+    set "JAVA_EXE=C:\Program Files\Eclipse Adoptium\jdk-8.0.492.9-hotspot\bin\java.exe"
+    goto init
+)
+
 if defined JAVA_HOME goto findJavaFromJavaHome
 
 set JAVA_EXE=java.exe
@@ -61,6 +67,7 @@ if "x%~1" == "x" goto execute
 set CMD_LINE_ARGS=%*
 
 :execute
+if "%CMD_LINE_ARGS%" == "" set CMD_LINE_ARGS=build
 @rem Setup the command line
 
 set CLASSPATH=%APP_HOME%\gradle\wrapper\gradle-wrapper.jar
@@ -75,10 +82,14 @@ if "%ERRORLEVEL%"=="0" goto mainEnd
 :fail
 rem Set variable GRADLE_EXIT_CONSOLE if you need the _script_ return code instead of
 rem the _cmd.exe /c_ return code!
+echo.
+pause
 if  not "" == "%GRADLE_EXIT_CONSOLE%" exit 1
 exit /b 1
 
 :mainEnd
 if "%OS%"=="Windows_NT" endlocal
+echo.
+pause
 
 :omega

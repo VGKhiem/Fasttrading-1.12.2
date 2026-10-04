@@ -1,8 +1,8 @@
 [
  {
    "modid": "fasttrading",
-   "name": "TCFastTrading",
-   "description": "TC FastTrading mod.",
+   "name": "KhyxUltilities",
+   "description": "KhyxUltilities - Mod tiện ích hỗ trợ Fast Trading với Dân Làng, NBT Inspector và Custom GUI Slot Clicker cho Minecraft 1.12.2.",
    "version": "2.0",
    "mcversion": "[1.8,1.12.2]",
    "url": "",
