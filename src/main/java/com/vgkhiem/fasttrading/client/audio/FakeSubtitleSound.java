@@ -1,10 +1,12 @@
 package com.vgkhiem.fasttrading.client.audio;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.PositionedSound;
 import net.minecraft.client.audio.SoundEventAccessor;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.audio.ISound.AttenuationType;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
@@ -40,5 +42,16 @@ public class FakeSubtitleSound extends PositionedSound {
 
    public SoundEventAccessor createAccessor(SoundHandler handler) {
       return new SoundEventAccessor(super.createAccessor(handler).getLocation(), this.subtitle);
+   }
+
+   public static void playTradeFeedback(int tradeCount) {
+      Minecraft mc = Minecraft.getMinecraft();
+      if (tradeCount > 1) {
+         mc.getSoundHandler().playSound(getRecord(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.35F, 0.7F, ""));
+      } else if (tradeCount == 1) {
+         mc.getSoundHandler().playSound(getRecord(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.15F, 0.6F, ""));
+      } else {
+         mc.getSoundHandler().playSound(getRecord(SoundEvents.ENTITY_VILLAGER_NO, 1.0F, 0.8F, ""));
+      }
    }
 }

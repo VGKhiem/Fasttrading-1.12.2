@@ -1,6 +1,7 @@
 package com.vgkhiem.fasttrading.util;
 
 import com.vgkhiem.fasttrading.FastTrading;
+import com.vgkhiem.fasttrading.client.audio.FakeSubtitleSound;
 import com.vgkhiem.fasttrading.client.gui.GuiMerchantOverride;
 import com.vgkhiem.fasttrading.config.ConfigJson;
 import java.util.HashMap;
@@ -37,7 +38,10 @@ public class TradingHelper {
       }
 
       if (FastTrading.configLoader.config.isAuto) {
-         this.trading(list);
+         int autoTrades = this.trading(list);
+         if (autoTrades > 0) {
+            FakeSubtitleSound.playTradeFeedback(autoTrades);
+         }
       }
    }
 
@@ -159,60 +163,68 @@ public class TradingHelper {
       return true;
    }
 
-   public void trading(MerchantRecipeList list) {
+   public int trading(MerchantRecipeList list) {
+      int totalTrades = 0;
       int i = 0;
       for(MerchantRecipe recipe : list) {
          ConfigJson.SimpleRecipe simpleRecipe = this.map.get(recipe);
          if (null != simpleRecipe) {
             if (simpleRecipe.lockPrice) {
                if (ConfigJson.isSamePrice(recipe, simpleRecipe)) {
-                  this.trading(recipe, i);
+                  totalTrades += this.trading(recipe, i);
                }
             } else {
-               this.trading(recipe, i);
+               totalTrades += this.trading(recipe, i);
             }
          }
          ++i;
       }
+      return totalTrades;
    }
 
-   public void trading(MerchantRecipe recipe, int index) {
+   public int trading(MerchantRecipe recipe, int index) {
       if (recipe == null || recipe.isRecipeDisabled()) {
-         return;
+         return 0;
       }
       this.gui.setCurrentRecipe(index);
+      int tradeCount = 0;
       int safetyLimit = 0;
       while (!recipe.isRecipeDisabled() && safetyLimit++ < 64) {
          if (!this.prepareInputs(recipe, true)) {
             this.clearSlot(this.buy1, this.buy2);
-            return;
+            return tradeCount;
          }
 
          if (!this.sell.getHasStack()) {
             this.clearSlot(this.buy1, this.buy2);
-            return;
+            return tradeCount;
          }
 
          this.gui.click(this.sell, 0, ClickType.QUICK_MOVE);
          this.clearSlot(this.buy1, this.buy2);
+         tradeCount++;
       }
       this.clearSlot(this.buy1, this.buy2);
+      return tradeCount;
    }
 
-   public void tradingOnce(MerchantRecipe recipe, int index) {
+   public int tradingOnce(MerchantRecipe recipe, int index) {
       if (recipe == null || recipe.isRecipeDisabled()) {
-         return;
+         return 0;
       }
       this.gui.setCurrentRecipe(index);
       if (!this.prepareInputs(recipe, false)) {
          this.clearSlot(this.buy1, this.buy2);
-         return;
+         return 0;
       }
 
       if (this.sell.getHasStack()) {
          this.gui.click(this.sell, 0, ClickType.QUICK_MOVE);
+         this.clearSlot(this.buy1, this.buy2);
+         return 1;
       }
       this.clearSlot(this.buy1, this.buy2);
+      return 0;
    }
 
    private void clearSlot(Slot... slots) {

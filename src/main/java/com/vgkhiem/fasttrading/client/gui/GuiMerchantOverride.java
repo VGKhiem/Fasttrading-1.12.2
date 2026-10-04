@@ -1,6 +1,7 @@
 package com.vgkhiem.fasttrading.client.gui;
 
 import com.vgkhiem.fasttrading.FastTrading;
+import com.vgkhiem.fasttrading.client.audio.FakeSubtitleSound;
 import com.vgkhiem.fasttrading.config.ConfigJson;
 import com.vgkhiem.fasttrading.util.TradingHelper;
 import com.vgkhiem.fasttrading.util.VGKhiemUtils;
@@ -156,11 +157,13 @@ public class GuiMerchantOverride extends GuiMerchant {
             int recipeIndex = button.id - 300;
             this.setCurrentRecipe(recipeIndex);
             if (this.lastClickTime > currentTime - 500 && this.lastClickButton == button) {
+               int trades;
                if (isShiftKeyDown()) {
-                  this.helper.trading((MerchantRecipe)this.merchantRecipeList.get(recipeIndex), recipeIndex);
+                  trades = this.helper.trading((MerchantRecipe)this.merchantRecipeList.get(recipeIndex), recipeIndex);
                } else {
-                  this.helper.tradingOnce((MerchantRecipe)this.merchantRecipeList.get(recipeIndex), recipeIndex);
+                  trades = this.helper.tradingOnce((MerchantRecipe)this.merchantRecipeList.get(recipeIndex), recipeIndex);
                }
+               FakeSubtitleSound.playTradeFeedback(trades);
 
                this.lastClickButton = null;
                this.lastClickTime = 0;
