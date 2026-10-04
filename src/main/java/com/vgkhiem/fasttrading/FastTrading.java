@@ -1,8 +1,11 @@
 package com.vgkhiem.fasttrading;
 
+import com.vgkhiem.fasttrading.client.gui.GuiSpamClicker;
 import com.vgkhiem.fasttrading.config.ConfigLoader;
+import com.vgkhiem.fasttrading.config.CooldownConfig;
 import com.vgkhiem.fasttrading.eventhandler.FastTradingEventHandler;
 import com.vgkhiem.fasttrading.util.KeyLoader;
+import java.io.File;
 import java.io.IOException;
 import net.minecraft.entity.NpcMerchant;
 import net.minecraftforge.common.MinecraftForge;
@@ -24,11 +27,13 @@ public class FastTrading {
    public static final String NAME = "FastTrading";
    public static final String VERSION = "2.0";
    public static ConfigLoader configLoader = null;
+   public static CooldownConfig cooldownConfig = null;
    public static Logger logger;
 
    @EventHandler
    public void init(FMLInitializationEvent event) {
       MinecraftForge.EVENT_BUS.register(new FastTradingEventHandler());
+      MinecraftForge.EVENT_BUS.register(new GuiSpamClicker());
       MinecraftForge.EVENT_BUS.register(this);
       new KeyLoader();
       Class c = NpcMerchant.class;
@@ -37,6 +42,7 @@ public class FastTrading {
    @EventHandler
    public void preInit(FMLPreInitializationEvent event) throws IOException {
       configLoader = new ConfigLoader(event);
+      cooldownConfig = CooldownConfig.load(new File(event.getModConfigurationDirectory(), "khyxultilities"));
       logger = event.getModLog();
    }
 }

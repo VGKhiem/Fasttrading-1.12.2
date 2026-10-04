@@ -21,10 +21,19 @@ public class ConfigLoader {
    private ConfigJson oldConfig;
 
    public ConfigLoader(FMLPreInitializationEvent event) throws IOException {
-      this.configFile = new File(event.getModConfigurationDirectory() + "/fasttrading.json");
+      File configDir = new File(event.getModConfigurationDirectory(), "khyxultilities");
+      if (!configDir.exists()) {
+         configDir.mkdirs();
+      }
+      this.configFile = new File(configDir, "fasttrading.json");
+      File oldFile = new File(event.getModConfigurationDirectory(), "fasttrading.json");
       if (!this.configFile.exists()) {
-         this.configFile.createNewFile();
-         this.fileInit(this.configFile);
+         if (oldFile.exists()) {
+            oldFile.renameTo(this.configFile);
+         } else {
+            this.configFile.createNewFile();
+            this.fileInit(this.configFile);
+         }
       }
 
       JsonReader j = new JsonReader(new FileReader(this.configFile));

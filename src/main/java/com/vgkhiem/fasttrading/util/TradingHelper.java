@@ -203,6 +203,13 @@ public class TradingHelper {
          this.gui.click(this.sell, 0, ClickType.QUICK_MOVE);
          this.clearSlot(this.buy1, this.buy2);
          tradeCount++;
+
+         if (FastTrading.cooldownConfig != null && FastTrading.cooldownConfig.fastTradeCooldown > 0) {
+            try {
+               Thread.sleep(FastTrading.cooldownConfig.fastTradeCooldown);
+            } catch (InterruptedException ignored) {
+            }
+         }
       }
       this.clearSlot(this.buy1, this.buy2);
       return tradeCount;
