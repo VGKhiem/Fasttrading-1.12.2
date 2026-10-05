@@ -89,6 +89,7 @@ exit /b 1
 
 :mainEnd
 if "%OS%"=="Windows_NT" endlocal
+powershell -NoProfile -Command "Get-ChildItem -Path '%~dp0build' -Exclude 'libs' -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue; if (Test-Path '%~dp0bin') { Remove-Item -Path '%~dp0bin' -Recurse -Force -ErrorAction SilentlyContinue }"
 echo.
 pause
 

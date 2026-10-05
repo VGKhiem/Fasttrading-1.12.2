@@ -22,6 +22,7 @@ public class RegisterTransformer {
 
    public void register() {
       this.mainT.register(new HookSetRecipeListEvent());
+      this.mainT.register(new HookNetworkManagerChannel());
    }
 
    private class HookSetRecipeListEvent implements IRegisterTransformer {
@@ -50,6 +51,39 @@ public class RegisterTransformer {
          insnList.add(new InsnNode(177));
          insnList.add(new LabelNode());
          ClassWriter classWriter = new ClassWriter(2);
+         classNode.accept(classWriter);
+         return classWriter.toByteArray();
+      }
+   }
+
+   private class HookNetworkManagerChannel implements IRegisterTransformer {
+      private HookNetworkManagerChannel() {
+      }
+
+      public String getMcVersion() {
+         return "[1.8,1.12.2]";
+      }
+
+      public List<String> getClassName() {
+         return Arrays.asList("net.minecraft.network.NetworkManager$5", "gw$5");
+      }
+
+      public byte[] transform(String name, String transformedName, byte[] basicClass) {
+         ClassReader classReader = new ClassReader(basicClass);
+         ClassNode classNode = new ClassNode();
+         classReader.accept(classNode, 0);
+
+         for (MethodNode method : classNode.methods) {
+            if ("initChannel".equals(method.name) && "(Lio/netty/channel/Channel;)V".equals(method.desc)) {
+               InsnList toInject = new InsnList();
+               toInject.add(new VarInsnNode(25, 1));
+               toInject.add(new MethodInsnNode(184, "com/vgkhiem/khyxultilities/network/ProxyHook", "injectProxy", "(Lio/netty/channel/Channel;)V", false));
+               method.instructions.insert(toInject);
+               break;
+            }
+         }
+
+         ClassWriter classWriter = new ClassWriter(1);
          classNode.accept(classWriter);
          return classWriter.toByteArray();
       }

@@ -3,7 +3,9 @@ package com.vgkhiem.khyxultilities;
 import com.vgkhiem.khyxultilities.client.gui.GuiSpamClicker;
 import com.vgkhiem.khyxultilities.config.ConfigLoader;
 import com.vgkhiem.khyxultilities.config.CooldownConfig;
+import com.vgkhiem.khyxultilities.config.ProxyConfig;
 import com.vgkhiem.khyxultilities.eventhandler.FastTradingEventHandler;
+import com.vgkhiem.khyxultilities.eventhandler.GuiMultiplayerHandler;
 import com.vgkhiem.khyxultilities.util.KeyLoader;
 import java.io.File;
 import java.io.IOException;
@@ -16,17 +18,17 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.Logger;
 
 @Mod(
-   modid = "fasttrading",
-   version = "2.0",
-   name = "KhyxUltilities",
+   modid = FastTrading.MODID,
+   name = FastTrading.NAME,
+   useMetadata = true,
    acceptedMinecraftVersions = "[1.12, )",
    clientSideOnly = true,
    guiFactory = "com.vgkhiem.khyxultilities.client.gui.FastTradingGuiFactory"
 )
 public class FastTrading {
-   public static final String MODID = "fasttrading";
+   public static final String MODID = "khyxultilities";
    public static final String NAME = "KhyxUltilities";
-   public static final String VERSION = "2.0";
+   public static String VERSION = "2.0";
    public static ConfigLoader configLoader = null;
    public static CooldownConfig cooldownConfig = null;
    public static Logger logger;
@@ -35,6 +37,7 @@ public class FastTrading {
    public void init(FMLInitializationEvent event) {
       MinecraftForge.EVENT_BUS.register(new FastTradingEventHandler());
       MinecraftForge.EVENT_BUS.register(new GuiSpamClicker());
+      MinecraftForge.EVENT_BUS.register(new GuiMultiplayerHandler());
       MinecraftForge.EVENT_BUS.register(this);
       new KeyLoader();
       NpcMerchant.class.getName();
@@ -42,8 +45,13 @@ public class FastTrading {
 
    @EventHandler
    public void preInit(FMLPreInitializationEvent event) throws IOException {
+      if (event.getModMetadata() != null && event.getModMetadata().version != null) {
+         VERSION = event.getModMetadata().version;
+      }
       configLoader = new ConfigLoader(event);
-      cooldownConfig = CooldownConfig.load(new File(event.getModConfigurationDirectory(), "khyxultilities"));
+      File configDir = new File(event.getModConfigurationDirectory(), "khyxultilities");
+      cooldownConfig = CooldownConfig.load(configDir);
+      ProxyConfig.load(configDir);
       logger = event.getModLog();
    }
 }

@@ -13,7 +13,21 @@ buildscript {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "2.0"
+import groovy.json.JsonSlurper
+
+def getModVersion() {
+    def infoFile = file('src/main/resources/mcmod.info')
+    if (infoFile.exists()) {
+        try {
+            def parsed = new JsonSlurper().parseText(infoFile.text)
+            return parsed[0].version
+        } catch (Exception ignored) {
+        }
+    }
+    return "1.0"
+}
+
+version = getModVersion()
 group = "com.vgkhiem.khyxultilities"
 archivesBaseName = "KhyxUltilities-1.12.2"
 
@@ -59,3 +73,21 @@ afterEvaluate {
     tasks.findByName('build')?.group = 'build setup'
     tasks.findByName('clean')?.group = 'build setup'
 }
+
+def cleanExtraBuildDirs = {
+    def bDir = file('build')
+    if (bDir.exists()) {
+        bDir.listFiles()?.each { f ->
+            if (f.name != 'libs') {
+                delete f
+            }
+        }
+    }
+    def binDir = file('bin')
+    if (binDir.exists()) {
+        delete binDir
+    }
+}
+
+build.doLast cleanExtraBuildDirs
+assemble.doLast cleanExtraBuildDirs

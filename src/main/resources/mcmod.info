@@ -1,9 +1,9 @@
 [
  {
-   "modid": "fasttrading",
+   "modid": "khyxultilities",
    "name": "KhyxUltilities",
-   "description": "KhyxUltilities - Mod tiện ích hỗ trợ Fast Trading với Dân Làng, NBT Inspector và Custom GUI Slot Clicker cho Minecraft 1.12.2.",
-   "version": "2.0",
+   "description": "KhyxUltilities - A utility mod featuring Villager Fast Trading, NBT Inspector, Custom GUI Slot Clicker, and Multiplayer Proxy Support for Minecraft 1.12.2.",
+   "version": "1.1",
    "mcversion": "[1.8,1.12.2]",
    "url": "",
    "updateUrl": "",
