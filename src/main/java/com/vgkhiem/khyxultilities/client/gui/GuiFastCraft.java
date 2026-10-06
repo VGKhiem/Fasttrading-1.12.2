@@ -8,9 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -47,54 +45,6 @@ public class GuiFastCraft {
    private CraftableRecipe hoveredRecipe = null;
    private String lastSearchText = "";
    private boolean autoCraftTriggeredForCurrentGui = false;
-   private boolean showOnlyAutoCraft = false;
-   private GuiAutoCraftButton autoCraftButton;
-
-   private static class GuiAutoCraftButton extends GuiButton {
-      private boolean active;
-
-      public GuiAutoCraftButton(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText) {
-         super(buttonId, x, y, widthIn, heightIn, buttonText);
-      }
-
-      public void setActive(boolean active) {
-         this.active = active;
-      }
-
-      @Override
-      public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-         if (!this.visible) {
-            return;
-         }
-         FontRenderer fontrenderer = mc.fontRenderer;
-         mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
-         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-         this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
-         int i = this.getHoverState(this.hovered);
-         GlStateManager.enableBlend();
-         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-         GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-
-         int halfW = this.width / 2;
-         int halfH = this.height / 2;
-         int v = 46 + i * 20;
-
-         this.drawTexturedModalRect(this.x, this.y, 0, v, halfW, halfH);
-         this.drawTexturedModalRect(this.x + halfW, this.y, 200 - (this.width - halfW), v, this.width - halfW, halfH);
-         this.drawTexturedModalRect(this.x, this.y + halfH, 0, v + 20 - (this.height - halfH), halfW, this.height - halfH);
-         this.drawTexturedModalRect(this.x + halfW, this.y + halfH, 200 - (this.width - halfW), v + 20 - (this.height - halfH), this.width - halfW, this.height - halfH);
-
-         this.mouseDragged(mc, mouseX, mouseY);
-
-         int color = 14737632;
-         if (this.active) {
-            color = this.hovered ? 0xAAFFAA : 0x55FF55;
-         } else if (this.hovered) {
-            color = 16777120;
-         }
-         this.drawCenteredString(fontrenderer, this.displayString, this.x + this.width / 2, this.y + (this.height - 8) / 2, color);
-      }
-   }
 
    static {
       try {
@@ -174,13 +124,10 @@ public class GuiFastCraft {
       int panelX = getPanelX(gui);
       int panelY = getPanelY(gui);
 
-      this.searchField = new GuiTextField(8801, this.mc.fontRenderer, panelX + 4, panelY + 3, 47, 16);
+      this.searchField = new GuiTextField(8801, this.mc.fontRenderer, panelX + 4, panelY + 4, PANEL_WIDTH - 8, 14);
       this.searchField.setMaxStringLength(32);
       this.searchField.setText(lastSearchText);
       this.searchField.setEnableBackgroundDrawing(true);
-
-      this.autoCraftButton = new GuiAutoCraftButton(8802, panelX + 54, panelY + 2, 18, 18, "A");
-      this.autoCraftButton.setActive(this.showOnlyAutoCraft);
 
       refreshRecipes(gui);
       this.scrollRow = 0;
@@ -213,12 +160,7 @@ public class GuiFastCraft {
       int panelY = getPanelY(gui);
       if (this.searchField != null) {
          this.searchField.x = panelX + 4;
-         this.searchField.y = panelY + 3;
-      }
-      if (this.autoCraftButton != null) {
-         this.autoCraftButton.x = panelX + 54;
-         this.autoCraftButton.y = panelY + 2;
-         this.autoCraftButton.setActive(this.showOnlyAutoCraft);
+         this.searchField.y = panelY + 4;
       }
    }
 
@@ -244,10 +186,6 @@ public class GuiFastCraft {
          if (this.searchField.getText().isEmpty() && !this.searchField.isFocused()) {
             this.mc.fontRenderer.drawString("Search...", this.searchField.x + 4, this.searchField.y + 3, 0x777777);
          }
-      }
-
-      if (this.autoCraftButton != null) {
-         this.autoCraftButton.drawButton(this.mc, mouseX, mouseY, event.getRenderPartialTicks());
       }
 
       int startY = panelY + 22;
@@ -326,13 +264,7 @@ public class GuiFastCraft {
          Gui.drawRect(trackX, thumbY, trackX + 3, thumbY + thumbHeight, 0xFF888888);
       }
 
-      boolean hoverA = this.autoCraftButton != null && mouseX >= this.autoCraftButton.x && mouseX <= this.autoCraftButton.x + this.autoCraftButton.width && mouseY >= this.autoCraftButton.y && mouseY <= this.autoCraftButton.y + this.autoCraftButton.height;
-      if (hoverA) {
-         List<String> tip = new ArrayList<>();
-         tip.add(this.showOnlyAutoCraft ? TextFormatting.GREEN + "Auto-Craft List: ACTIVE" : TextFormatting.GRAY + "Auto-Craft List: OFF");
-         tip.add(TextFormatting.YELLOW + "Click to toggle viewing Auto-Craft recipes");
-         GuiUtils.drawHoveringText(ItemStack.EMPTY, tip, mouseX, mouseY, gui.width, gui.height, -1, this.mc.fontRenderer);
-      } else if (this.hoveredStack != null && !this.hoveredStack.isEmpty()) {
+      if (this.hoveredStack != null && !this.hoveredStack.isEmpty()) {
          List<String> tip = this.hoveredStack.getTooltip(this.mc.player, this.mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
          if (this.hoveredRecipe != null) {
             boolean isAuto = FastCraftHelper.isAutoCraft(this.hoveredRecipe.recipe);
@@ -392,16 +324,6 @@ public class GuiFastCraft {
       boolean buttonState = Mouse.getEventButtonState();
 
       if (buttonState) {
-         if (button == 0 && this.autoCraftButton != null && this.autoCraftButton.mousePressed(this.mc, mouseX, mouseY)) {
-            this.showOnlyAutoCraft = !this.showOnlyAutoCraft;
-            this.autoCraftButton.setActive(this.showOnlyAutoCraft);
-            this.scrollRow = 0;
-            refreshRecipes(gui);
-            this.autoCraftButton.playPressSound(this.mc.getSoundHandler());
-            event.setCanceled(true);
-            return;
-         }
-
          if (button == 0) {
             if (this.searchField != null) {
                this.searchField.mouseClicked(mouseX, mouseY, button);
@@ -476,18 +398,13 @@ public class GuiFastCraft {
       this.autoCraftTriggeredForCurrentGui = false;
       if (event.getGui() == null) {
          this.searchField = null;
-         this.autoCraftButton = null;
          this.hoveredStack = ItemStack.EMPTY;
          this.hoveredRecipe = null;
       }
    }
 
    private void refreshRecipes(GuiContainer gui) {
-      if (this.showOnlyAutoCraft) {
-         this.allRecipes = FastCraftHelper.findAutoCraftRecipes(gui);
-      } else {
-         this.allRecipes = FastCraftHelper.findCraftableRecipes(gui);
-      }
+      this.allRecipes = FastCraftHelper.findAllDisplayRecipes(gui);
       filterRecipes();
    }
 

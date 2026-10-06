@@ -4,9 +4,11 @@ import com.vgkhiem.khyxultilities.config.FastCraftConfig;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiCrafting;
@@ -176,9 +178,9 @@ public class FastCraftHelper {
       }
    }
 
-   public static List<CraftableRecipe> findAutoCraftRecipes(GuiContainer gui) {
+   public static List<CraftableRecipe> findAllDisplayRecipes(GuiContainer gui) {
       List<CraftableRecipe> result = new ArrayList<>();
-      if (!isApplicable(gui) || FastCraftConfig.get().autoCraftRecipes == null) {
+      if (!isApplicable(gui)) {
          return result;
       }
 
@@ -189,31 +191,46 @@ public class FastCraftHelper {
          availableMap.put(getRecipeKey(cr.recipe), cr);
       }
 
-      for (Object obj : CraftingManager.REGISTRY) {
-         if (!(obj instanceof IRecipe)) {
-            continue;
-         }
-         IRecipe recipe = (IRecipe) obj;
-         if (!isAutoCraft(recipe)) {
-            continue;
-         }
-         if (!recipe.canFit(gridSize, gridSize)) {
-            continue;
+      List<CraftableRecipe> autoList = new ArrayList<>();
+      Set<String> autoKeys = new HashSet<>();
+
+      if (FastCraftConfig.get().autoCraftRecipes != null) {
+         for (Object obj : CraftingManager.REGISTRY) {
+            if (!(obj instanceof IRecipe)) {
+               continue;
+            }
+            IRecipe recipe = (IRecipe) obj;
+            if (!isAutoCraft(recipe)) {
+               continue;
+            }
+            if (!recipe.canFit(gridSize, gridSize)) {
+               continue;
+            }
+
+            String key = getRecipeKey(recipe);
+            autoKeys.add(key);
+            if (availableMap.containsKey(key)) {
+               autoList.add(availableMap.get(key));
+            } else {
+               ItemStack out = recipe.getRecipeOutput();
+               if (out != null && !out.isEmpty() && out.getItem() != Items.AIR) {
+                  autoList.add(new CraftableRecipe(recipe, out, 0));
+               }
+            }
          }
 
-         String key = getRecipeKey(recipe);
-         if (availableMap.containsKey(key)) {
-            result.add(availableMap.get(key));
-         } else {
-            ItemStack out = recipe.getRecipeOutput();
-            if (out != null && !out.isEmpty() && out.getItem() != Items.AIR) {
-               result.add(new CraftableRecipe(recipe, out, 0));
-            }
+         autoList.sort(Comparator.comparing((CraftableRecipe a) -> a.displayName.toLowerCase())
+            .thenComparing(a -> a.output.getItem().getRegistryName() != null ? a.output.getItem().getRegistryName().toString() : ""));
+      }
+
+      result.addAll(autoList);
+
+      for (CraftableRecipe cr : available) {
+         if (!autoKeys.contains(getRecipeKey(cr.recipe))) {
+            result.add(cr);
          }
       }
 
-      result.sort(Comparator.comparing((CraftableRecipe a) -> a.displayName.toLowerCase())
-         .thenComparing(a -> a.output.getItem().getRegistryName() != null ? a.output.getItem().getRegistryName().toString() : ""));
       return result;
    }
 
