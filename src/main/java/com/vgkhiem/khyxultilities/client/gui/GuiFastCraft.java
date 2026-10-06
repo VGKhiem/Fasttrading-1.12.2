@@ -225,10 +225,6 @@ public class GuiFastCraft {
                Gui.drawRect(slotX, slotY, slotX + 19, slotY + 19, 0x60FFEE55);
             }
 
-            if (cr == hovered) {
-               Gui.drawRect(slotX, slotY, slotX + 19, slotY + 19, 0x55FFFFFF);
-            }
-
             GlStateManager.pushMatrix();
             RenderHelper.enableGUIStandardItemLighting();
             this.mc.getRenderItem().renderItemAndEffectIntoGUI(cr.output, slotX + 1, slotY + 1);
@@ -238,7 +234,11 @@ public class GuiFastCraft {
             GlStateManager.disableLighting();
 
             if (cr.craftableCount <= 0) {
-               Gui.drawRect(slotX + 1, slotY + 1, slotX + 18, slotY + 18, 0x77000000);
+               Gui.drawRect(slotX, slotY, slotX + 19, slotY + 19, 0x44000000);
+            }
+
+            if (cr == hovered) {
+               Gui.drawRect(slotX, slotY, slotX + 19, slotY + 19, 0x55FFFFFF);
             }
 
             if (cr.totalOutputCount > 1) {
