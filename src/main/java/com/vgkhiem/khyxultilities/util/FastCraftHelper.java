@@ -1,5 +1,7 @@
 package com.vgkhiem.khyxultilities.util;
 
+import com.vgkhiem.khyxultilities.FastTrading;
+import com.vgkhiem.khyxultilities.config.CooldownConfig;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -97,6 +99,121 @@ public class FastCraftHelper {
       } catch (Exception ignored) {
       }
       return -1;
+   }
+
+   public static String getRecipeKey(IRecipe recipe) {
+      if (recipe == null) {
+         return "";
+      }
+      if (recipe.getRegistryName() != null) {
+         return recipe.getRegistryName().toString();
+      }
+      ItemStack out = recipe.getRecipeOutput();
+      if (out != null && !out.isEmpty() && out.getItem().getRegistryName() != null) {
+         return out.getItem().getRegistryName().toString() + ":" + out.getMetadata();
+      }
+      return recipe.toString();
+   }
+
+   public static boolean isAutoCraft(IRecipe recipe) {
+      if (recipe == null || FastTrading.cooldownConfig == null) {
+         return false;
+      }
+      List<String> list = FastTrading.cooldownConfig.autoCraftRecipes;
+      if (list == null || list.isEmpty()) {
+         return false;
+      }
+      return list.contains(getRecipeKey(recipe));
+   }
+
+   public static boolean toggleAutoCraft(IRecipe recipe) {
+      if (recipe == null || FastTrading.cooldownConfig == null) {
+         return false;
+      }
+      if (FastTrading.cooldownConfig.autoCraftRecipes == null) {
+         FastTrading.cooldownConfig.autoCraftRecipes = new ArrayList<>();
+      }
+      String key = getRecipeKey(recipe);
+      boolean added;
+      if (FastTrading.cooldownConfig.autoCraftRecipes.contains(key)) {
+         FastTrading.cooldownConfig.autoCraftRecipes.remove(key);
+         added = false;
+      } else {
+         FastTrading.cooldownConfig.autoCraftRecipes.add(key);
+         added = true;
+      }
+      CooldownConfig.save(FastTrading.cooldownConfig);
+      return added;
+   }
+
+   public static void performAutoCraft(GuiContainer gui) {
+      if (!isApplicable(gui)) {
+         return;
+      }
+      if (FastTrading.cooldownConfig == null || !FastTrading.cooldownConfig.isAutoCraftEnabled()) {
+         return;
+      }
+      List<String> autoList = FastTrading.cooldownConfig.autoCraftRecipes;
+      if (autoList == null || autoList.isEmpty()) {
+         return;
+      }
+
+      int maxRounds = 36;
+      for (int round = 0; round < maxRounds; round++) {
+         List<CraftableRecipe> craftable = findCraftableRecipes(gui);
+         CraftableRecipe toCraft = null;
+         for (CraftableRecipe cr : craftable) {
+            if (isAutoCraft(cr.recipe)) {
+               toCraft = cr;
+               break;
+            }
+         }
+         if (toCraft == null) {
+            break;
+         }
+         craftRecipe(gui, toCraft, true);
+      }
+   }
+
+   public static List<CraftableRecipe> findAutoCraftRecipes(GuiContainer gui) {
+      List<CraftableRecipe> result = new ArrayList<>();
+      if (!isApplicable(gui) || FastTrading.cooldownConfig == null || FastTrading.cooldownConfig.autoCraftRecipes == null) {
+         return result;
+      }
+
+      int gridSize = getGridSize(gui);
+      List<CraftableRecipe> available = findCraftableRecipes(gui);
+      Map<String, CraftableRecipe> availableMap = new LinkedHashMap<>();
+      for (CraftableRecipe cr : available) {
+         availableMap.put(getRecipeKey(cr.recipe), cr);
+      }
+
+      for (Object obj : CraftingManager.REGISTRY) {
+         if (!(obj instanceof IRecipe)) {
+            continue;
+         }
+         IRecipe recipe = (IRecipe) obj;
+         if (!isAutoCraft(recipe)) {
+            continue;
+         }
+         if (!recipe.canFit(gridSize, gridSize)) {
+            continue;
+         }
+
+         String key = getRecipeKey(recipe);
+         if (availableMap.containsKey(key)) {
+            result.add(availableMap.get(key));
+         } else {
+            ItemStack out = recipe.getRecipeOutput();
+            if (out != null && !out.isEmpty() && out.getItem() != Items.AIR) {
+               result.add(new CraftableRecipe(recipe, out, 0));
+            }
+         }
+      }
+
+      result.sort(Comparator.comparing((CraftableRecipe a) -> a.displayName.toLowerCase())
+         .thenComparing(a -> a.output.getItem().getRegistryName() != null ? a.output.getItem().getRegistryName().toString() : ""));
+      return result;
    }
 
    public static List<CraftableRecipe> findCraftableRecipes(GuiContainer gui) {

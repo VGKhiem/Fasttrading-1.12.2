@@ -19,11 +19,13 @@ public class FastTradingConfigGui extends GuiScreen {
    private GuiButton proxyPositionButton;
    private GuiButton fastCraftButton;
    private GuiButton fastCraftPosButton;
+   private GuiButton autoCraftButton;
    private GuiButton doneButton;
    private GuiButton resetButton;
    private GuiButton cancelButton;
    private boolean currentAuto;
    private boolean currentFastCraft;
+   private boolean currentAutoCraft;
    private CooldownConfig.ButtonPosition currentPos;
    private CooldownConfig.ButtonPosition currentFastCraftPos;
    private ProxyConfig.ButtonPosition currentProxyPos;
@@ -34,6 +36,7 @@ public class FastTradingConfigGui extends GuiScreen {
       this.currentPos = FastTrading.cooldownConfig != null ? FastTrading.cooldownConfig.getButtonPosition() : CooldownConfig.ButtonPosition.RIGHT;
       this.currentFastCraft = FastTrading.cooldownConfig == null || FastTrading.cooldownConfig.isFastCraftEnabled();
       this.currentFastCraftPos = FastTrading.cooldownConfig != null ? FastTrading.cooldownConfig.getFastCraftPosition() : CooldownConfig.ButtonPosition.RIGHT;
+      this.currentAutoCraft = FastTrading.cooldownConfig == null || FastTrading.cooldownConfig.isAutoCraftEnabled();
       this.currentProxyPos = ProxyConfig.get().getButtonPosition();
    }
 
@@ -72,6 +75,9 @@ public class FastTradingConfigGui extends GuiScreen {
       this.fastCraftPosButton = new GuiButton(1008, col2X, 124, colW, 20, getFastCraftPosText());
       this.buttonList.add(this.fastCraftPosButton);
 
+      this.autoCraftButton = new GuiButton(1009, col2X, 164, colW, 20, getAutoCraftText());
+      this.buttonList.add(this.autoCraftButton);
+
       int bottomY = this.height - 35;
       this.doneButton = new GuiButton(1002, centerX - 155, bottomY, 100, 20, "Save & Close");
       this.resetButton = new GuiButton(1003, centerX - 50, bottomY, 100, 20, "Reset Default");
@@ -96,6 +102,10 @@ public class FastTradingConfigGui extends GuiScreen {
 
    private String getFastCraftText() {
       return "Fast Craft: " + (this.currentFastCraft ? TextFormatting.GREEN + "ON" : TextFormatting.RED + "OFF");
+   }
+
+   private String getAutoCraftText() {
+      return "Auto Craft: " + (this.currentAutoCraft ? TextFormatting.GREEN + "ON" : TextFormatting.RED + "OFF");
    }
 
    private String getFastCraftPosText() {
@@ -185,6 +195,9 @@ public class FastTradingConfigGui extends GuiScreen {
          this.currentFastCraftPos = (this.currentFastCraftPos == CooldownConfig.ButtonPosition.RIGHT) ?
             CooldownConfig.ButtonPosition.LEFT : CooldownConfig.ButtonPosition.RIGHT;
          this.fastCraftPosButton.displayString = getFastCraftPosText();
+      } else if (button.id == 1009) {
+         this.currentAutoCraft = !this.currentAutoCraft;
+         this.autoCraftButton.displayString = getAutoCraftText();
       } else if (button.id == 1002) {
          try {
             int ft = Integer.parseInt(this.fastTradeField.getText().trim());
@@ -206,6 +219,7 @@ public class FastTradingConfigGui extends GuiScreen {
             FastTrading.cooldownConfig.setButtonPosition(this.currentPos);
             FastTrading.cooldownConfig.setFastCraftEnabled(this.currentFastCraft);
             FastTrading.cooldownConfig.setFastCraftPosition(this.currentFastCraftPos);
+            FastTrading.cooldownConfig.setAutoCraftEnabled(this.currentAutoCraft);
             CooldownConfig.save(FastTrading.cooldownConfig);
          }
 
@@ -231,6 +245,8 @@ public class FastTradingConfigGui extends GuiScreen {
          this.proxyPositionButton.displayString = getProxyPositionText();
          this.fastCraftButton.displayString = getFastCraftText();
          this.fastCraftPosButton.displayString = getFastCraftPosText();
+         this.currentAutoCraft = true;
+         this.autoCraftButton.displayString = getAutoCraftText();
       } else if (button.id == 1004) {
          this.mc.displayGuiScreen(this.parentScreen);
       }

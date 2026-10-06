@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CooldownConfig {
    public int fastTradeCooldown = 50;
@@ -15,6 +17,8 @@ public class CooldownConfig {
    public String buttonPosition = "RIGHT";
    public boolean fastCraftEnabled = true;
    public String fastCraftPosition = "RIGHT";
+   public boolean autoCraftEnabled = true;
+   public List<String> autoCraftRecipes = new ArrayList<>();
 
    public enum ButtonPosition {
       RIGHT("Right"),
@@ -71,6 +75,14 @@ public class CooldownConfig {
       this.fastCraftPosition = (pos == ButtonPosition.LEFT) ? "LEFT" : "RIGHT";
    }
 
+   public boolean isAutoCraftEnabled() {
+      return this.autoCraftEnabled;
+   }
+
+   public void setAutoCraftEnabled(boolean enabled) {
+      this.autoCraftEnabled = enabled;
+   }
+
    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
    private static File configFile;
 
@@ -89,6 +101,9 @@ public class CooldownConfig {
          if (cfg == null) {
             cfg = new CooldownConfig();
             save(cfg);
+         }
+         if (cfg.autoCraftRecipes == null) {
+            cfg.autoCraftRecipes = new ArrayList<>();
          }
          return cfg;
       } catch (Exception e) {
