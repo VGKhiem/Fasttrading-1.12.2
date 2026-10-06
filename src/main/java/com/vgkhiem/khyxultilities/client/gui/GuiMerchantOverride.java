@@ -3,6 +3,7 @@ package com.vgkhiem.khyxultilities.client.gui;
 import com.vgkhiem.khyxultilities.FastTrading;
 import com.vgkhiem.khyxultilities.client.audio.FakeSubtitleSound;
 import com.vgkhiem.khyxultilities.config.ConfigJson;
+import com.vgkhiem.khyxultilities.util.KeyLoader;
 import com.vgkhiem.khyxultilities.util.TradingHelper;
 import com.vgkhiem.khyxultilities.util.VGKhiemUtils;
 import io.netty.buffer.Unpooled;
@@ -35,6 +36,12 @@ public class GuiMerchantOverride extends GuiMerchant {
    private GuiIconButton subtractButton;
    private GuiIconButton lockButton;
    private GuiIconButton unlockButton;
+   private boolean isTradingSessionActive = false;
+   private boolean isAutoTradeAll = false;
+   private int targetRecipeIndex = -1;
+   private int currentRecipeAutoIndex = 0;
+   private long lastTradeTickTime = 0;
+   private int totalTradesThisSession = 0;
 
    public GuiMerchantOverride(InventoryPlayer inventoryPlayer, IMerchant iMerchant, World worldIn) {
       super(inventoryPlayer, iMerchant, worldIn);
@@ -69,6 +76,8 @@ public class GuiMerchantOverride extends GuiMerchant {
             ((GuiRecipeButton)button).tryProminent(this.mc, mouseX, mouseY, p, false);
          }
       }
+
+      this.handleNonBlockingTrade();
    }
 
    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
@@ -130,6 +139,7 @@ public class GuiMerchantOverride extends GuiMerchant {
 
    public void onGuiClosed() {
       super.onGuiClosed();
+      this.stopTradingSession();
       FastTrading.configLoader.save();
    }
 
@@ -157,13 +167,12 @@ public class GuiMerchantOverride extends GuiMerchant {
             int recipeIndex = button.id - 300;
             this.setCurrentRecipe(recipeIndex);
             if (this.lastClickTime > currentTime - 500 && this.lastClickButton == button) {
-               int trades;
                if (isShiftKeyDown()) {
-                  trades = this.helper.trading((MerchantRecipe)this.merchantRecipeList.get(recipeIndex), recipeIndex);
+                  this.startNonBlockingTrading(recipeIndex, false);
                } else {
-                  trades = this.helper.tradingOnce((MerchantRecipe)this.merchantRecipeList.get(recipeIndex), recipeIndex);
+                  int trades = this.helper.tradingOnce((MerchantRecipe)this.merchantRecipeList.get(recipeIndex), recipeIndex);
+                  FakeSubtitleSound.playTradeFeedback(trades);
                }
-               FakeSubtitleSound.playTradeFeedback(trades);
 
                this.lastClickButton = null;
                this.lastClickTime = 0;
@@ -173,8 +182,10 @@ public class GuiMerchantOverride extends GuiMerchant {
             }
          } else if (button.id == 250) {
             FastTrading.configLoader.config.setAuto(true);
+            this.startNonBlockingTrading(-1, true);
          } else if (button.id == 251) {
             FastTrading.configLoader.config.setAuto(false);
+            this.stopTradingSession();
          } else if (button.id == 252) {
             ConfigJson.SimpleRecipe recipe1 = new ConfigJson.SimpleRecipe(false, recipe);
             FastTrading.configLoader.recipeList.add(recipe1);
@@ -311,5 +322,106 @@ public class GuiMerchantOverride extends GuiMerchant {
       this.merchantRecipeList = list;
       this.addMerchantButton(this.merchantRecipeList);
       this.helper.init(this.merchantRecipeList);
+   }
+
+   public void startNonBlockingTrading(int recipeIndex, boolean autoAll) {
+      if (this.merchantRecipeList == null || this.merchantRecipeList.isEmpty()) {
+         return;
+      }
+      this.isTradingSessionActive = true;
+      this.isAutoTradeAll = autoAll;
+      this.targetRecipeIndex = recipeIndex;
+      this.currentRecipeAutoIndex = 0;
+      this.lastTradeTickTime = 0;
+      this.totalTradesThisSession = 0;
+   }
+
+   public void stopTradingSession() {
+      if (this.isTradingSessionActive) {
+         this.isTradingSessionActive = false;
+         if (this.totalTradesThisSession > 0) {
+            FakeSubtitleSound.playTradeFeedback(this.totalTradesThisSession);
+         }
+         this.totalTradesThisSession = 0;
+      }
+   }
+
+   public boolean isTradingSessionActive() {
+      return this.isTradingSessionActive;
+   }
+
+   private void handleNonBlockingTrade() {
+      if (!this.isTradingSessionActive) {
+         return;
+      }
+
+      if (this.merchantRecipeList == null || this.merchantRecipeList.isEmpty()) {
+         this.stopTradingSession();
+         return;
+      }
+
+      long now = System.currentTimeMillis();
+      long cooldown = FastTrading.cooldownConfig != null ? FastTrading.cooldownConfig.fastTradeCooldown : 50;
+      if (cooldown < 20) {
+         cooldown = 20;
+      }
+
+      if (now - this.lastTradeTickTime < cooldown) {
+         return;
+      }
+
+      this.lastTradeTickTime = now;
+
+      if (!this.isAutoTradeAll) {
+         if (this.targetRecipeIndex < 0 || this.targetRecipeIndex >= this.merchantRecipeList.size()) {
+            this.stopTradingSession();
+            return;
+         }
+         MerchantRecipe recipe = (MerchantRecipe) this.merchantRecipeList.get(this.targetRecipeIndex);
+         if (recipe == null || recipe.isRecipeDisabled()) {
+            this.stopTradingSession();
+            return;
+         }
+
+         int trades = this.helper.tradingOnce(recipe, this.targetRecipeIndex);
+         if (trades > 0) {
+            this.totalTradesThisSession += trades;
+         } else {
+            this.stopTradingSession();
+         }
+      } else {
+         while (this.currentRecipeAutoIndex < this.merchantRecipeList.size()) {
+            MerchantRecipe recipe = (MerchantRecipe) this.merchantRecipeList.get(this.currentRecipeAutoIndex);
+            ConfigJson.SimpleRecipe simpleRecipe = (ConfigJson.SimpleRecipe) this.helper.map.get(recipe);
+
+            if (simpleRecipe != null && (!simpleRecipe.lockPrice || ConfigJson.isSamePrice(recipe, simpleRecipe))) {
+               if (recipe != null && !recipe.isRecipeDisabled()) {
+                  int trades = this.helper.tradingOnce(recipe, this.currentRecipeAutoIndex);
+                  if (trades > 0) {
+                     this.totalTradesThisSession += trades;
+                     return;
+                  }
+               }
+            }
+            this.currentRecipeAutoIndex++;
+         }
+         this.stopTradingSession();
+      }
+   }
+
+   @Override
+   protected void keyTyped(char typedChar, int keyCode) throws IOException {
+      if (KeyLoader.key_F4 != null && KeyLoader.key_F4.isActiveAndMatches(keyCode)) {
+         boolean newState = !FastTrading.configLoader.config.isAuto;
+         FastTrading.configLoader.config.setAuto(newState);
+         FastTrading.configLoader.save();
+         if (newState) {
+            this.startNonBlockingTrading(-1, true);
+         } else {
+            this.stopTradingSession();
+         }
+         return;
+      }
+      super.keyTyped(typedChar, keyCode);
    }
 }

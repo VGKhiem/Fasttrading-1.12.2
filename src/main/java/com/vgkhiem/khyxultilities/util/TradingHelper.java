@@ -32,16 +32,18 @@ public class TradingHelper {
       this.mc = Minecraft.getMinecraft();
    }
 
-   public void init(MerchantRecipeList list) {
+   public void updateMap(MerchantRecipeList list) {
+      if (list == null) return;
       for(MerchantRecipe recipe : list) {
          this.map.put(recipe, ConfigJson.isContain(recipe, FastTrading.configLoader.recipeList));
       }
+   }
+
+   public void init(MerchantRecipeList list) {
+      this.updateMap(list);
 
       if (FastTrading.configLoader.config.isAuto) {
-         int autoTrades = this.trading(list);
-         if (autoTrades > 0) {
-            FakeSubtitleSound.playTradeFeedback(autoTrades);
-         }
+         this.gui.startNonBlockingTrading(-1, true);
       }
    }
 
@@ -195,10 +197,20 @@ public class TradingHelper {
          return 0;
       }
 
+      int buy1Before = this.buy1.getHasStack() ? this.buy1.getStack().getCount() : 0;
+      int buy2Before = this.buy2.getHasStack() ? this.buy2.getStack().getCount() : 0;
+
       if (this.sell.getHasStack()) {
          this.gui.click(this.sell, 0, ClickType.QUICK_MOVE);
+         int buy1After = this.buy1.getHasStack() ? this.buy1.getStack().getCount() : 0;
+         int buy2After = this.buy2.getHasStack() ? this.buy2.getStack().getCount() : 0;
+         boolean consumed = (buy1Before != buy1After) || (buy2Before != buy2After) || (!this.sell.getHasStack());
+
          this.clearSlot(this.buy1, this.buy2);
-         return 1;
+         if (consumed) {
+            return 1;
+         }
+         return 0;
       }
       this.clearSlot(this.buy1, this.buy2);
       return 0;
@@ -246,18 +258,61 @@ public class TradingHelper {
       }
 
       int maxStack = itemToBuy.getMaxStackSize();
-      int toBuy1;
-      int toBuy2;
+      int toBuy1 = req1;
+      int toBuy2 = req2;
+
       if (tradeAll) {
-         int maxTrades = Math.min(totalAvailable / totalReq, Math.min(maxStack / req1, maxStack / req2));
-         if (maxTrades <= 0) {
-            return false;
+         int candidateT = 0;
+
+         for (int i = 3; i < slots.size(); i++) {
+            Slot s = slots.get(i);
+            if (s.getHasStack() && VGKhiemUtils.areItemEqualIgnoreCount(s.getStack(), itemToBuy)) {
+               int t = s.getStack().getCount() / totalReq;
+               if (t > candidateT) {
+                  candidateT = t;
+               }
+            }
          }
-         toBuy1 = maxTrades * req1;
-         toBuy2 = maxTrades * req2;
-      } else {
-         toBuy1 = req1;
-         toBuy2 = req2;
+
+         for (int i = 3; i < slots.size(); i++) {
+            Slot a = slots.get(i);
+            if (a.getHasStack() && VGKhiemUtils.areItemEqualIgnoreCount(a.getStack(), itemToBuy)) {
+               for (int j = 3; j < slots.size(); j++) {
+                  if (i == j) continue;
+                  Slot b = slots.get(j);
+                  if (b.getHasStack() && VGKhiemUtils.areItemEqualIgnoreCount(b.getStack(), itemToBuy)) {
+                     int t = Math.min(a.getStack().getCount() / req1, b.getStack().getCount() / req2);
+                     if (t > candidateT) {
+                        candidateT = t;
+                     }
+                  }
+               }
+            }
+         }
+
+         int maxTrades = Math.min(totalAvailable / totalReq, Math.min(maxStack / req1, maxStack / req2));
+         if (candidateT > 0) {
+            candidateT = Math.min(candidateT, maxTrades);
+         } else {
+            candidateT = 1;
+         }
+
+         toBuy1 = candidateT * req1;
+         toBuy2 = candidateT * req2;
+      }
+
+      Slot singleSlot = null;
+      for (int i = 3; i < slots.size(); i++) {
+         Slot s = slots.get(i);
+         if (s.getHasStack() && VGKhiemUtils.areItemEqualIgnoreCount(s.getStack(), itemToBuy) && s.getStack().getCount() >= toBuy1 + toBuy2) {
+            singleSlot = s;
+            break;
+         }
+      }
+
+      if (singleSlot != null) {
+         this.splitSlotToBoth(singleSlot, this.buy1, toBuy1, this.buy2, toBuy2);
+         return true;
       }
 
       Slot s1 = null;
@@ -284,20 +339,6 @@ public class TradingHelper {
          return true;
       }
 
-      Slot singleSlot = null;
-      for (int i = 3; i < slots.size(); i++) {
-         Slot s = slots.get(i);
-         if (s.getHasStack() && VGKhiemUtils.areItemEqualIgnoreCount(s.getStack(), itemToBuy) && s.getStack().getCount() >= toBuy1 + toBuy2) {
-            singleSlot = s;
-            break;
-         }
-      }
-
-      if (singleSlot != null) {
-         this.splitSlotToBoth(singleSlot, this.buy1, toBuy1, this.buy2, toBuy2);
-         return true;
-      }
-
       Slot firstSlot = null;
       for (int i = 3; i < slots.size(); i++) {
          Slot s = slots.get(i);
@@ -311,6 +352,11 @@ public class TradingHelper {
          this.gui.click(firstSlot, 0, ClickType.PICKUP);
          this.gui.click(firstSlot, 0, ClickType.PICKUP_ALL);
          this.gui.click(firstSlot, 0, ClickType.PICKUP);
+
+         if (firstSlot.getStack().getCount() < toBuy1 + toBuy2 && firstSlot.getStack().getCount() >= totalReq) {
+            toBuy1 = req1;
+            toBuy2 = req2;
+         }
 
          if (firstSlot.getStack().getCount() >= toBuy1 + toBuy2) {
             this.splitSlotToBoth(firstSlot, this.buy1, toBuy1, this.buy2, toBuy2);
