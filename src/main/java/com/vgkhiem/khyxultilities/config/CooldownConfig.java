@@ -8,17 +8,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class CooldownConfig {
    public int fastTradeCooldown = 50;
    public int guiClickCooldown = 100;
    public String buttonPosition = "RIGHT";
-   public boolean fastCraftEnabled = true;
-   public String fastCraftPosition = "RIGHT";
-   public boolean autoCraftEnabled = true;
-   public List<String> autoCraftRecipes = new ArrayList<>();
 
    public enum ButtonPosition {
       RIGHT("Right"),
@@ -54,35 +48,6 @@ public class CooldownConfig {
       this.buttonPosition = pos.name();
    }
 
-   public boolean isFastCraftEnabled() {
-      return this.fastCraftEnabled;
-   }
-
-   public void setFastCraftEnabled(boolean enabled) {
-      this.fastCraftEnabled = enabled;
-   }
-
-   public ButtonPosition getFastCraftPosition() {
-      try {
-         ButtonPosition pos = ButtonPosition.valueOf(this.fastCraftPosition.toUpperCase());
-         return (pos == ButtonPosition.LEFT) ? ButtonPosition.LEFT : ButtonPosition.RIGHT;
-      } catch (Exception e) {
-         return ButtonPosition.RIGHT;
-      }
-   }
-
-   public void setFastCraftPosition(ButtonPosition pos) {
-      this.fastCraftPosition = (pos == ButtonPosition.LEFT) ? "LEFT" : "RIGHT";
-   }
-
-   public boolean isAutoCraftEnabled() {
-      return this.autoCraftEnabled;
-   }
-
-   public void setAutoCraftEnabled(boolean enabled) {
-      this.autoCraftEnabled = enabled;
-   }
-
    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
    private static File configFile;
 
@@ -101,9 +66,6 @@ public class CooldownConfig {
          if (cfg == null) {
             cfg = new CooldownConfig();
             save(cfg);
-         }
-         if (cfg.autoCraftRecipes == null) {
-            cfg.autoCraftRecipes = new ArrayList<>();
          }
          return cfg;
       } catch (Exception e) {

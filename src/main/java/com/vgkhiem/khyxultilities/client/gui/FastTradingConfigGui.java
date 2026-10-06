@@ -2,6 +2,7 @@ package com.vgkhiem.khyxultilities.client.gui;
 
 import com.vgkhiem.khyxultilities.FastTrading;
 import com.vgkhiem.khyxultilities.config.CooldownConfig;
+import com.vgkhiem.khyxultilities.config.FastCraftConfig;
 import com.vgkhiem.khyxultilities.config.ProxyConfig;
 import java.io.IOException;
 import net.minecraft.client.gui.GuiButton;
@@ -27,16 +28,16 @@ public class FastTradingConfigGui extends GuiScreen {
    private boolean currentFastCraft;
    private boolean currentAutoCraft;
    private CooldownConfig.ButtonPosition currentPos;
-   private CooldownConfig.ButtonPosition currentFastCraftPos;
+   private FastCraftConfig.ButtonPosition currentFastCraftPos;
    private ProxyConfig.ButtonPosition currentProxyPos;
 
    public FastTradingConfigGui(GuiScreen parentScreen) {
       this.parentScreen = parentScreen;
       this.currentAuto = FastTrading.configLoader != null && FastTrading.configLoader.config != null && FastTrading.configLoader.config.isAuto;
       this.currentPos = FastTrading.cooldownConfig != null ? FastTrading.cooldownConfig.getButtonPosition() : CooldownConfig.ButtonPosition.RIGHT;
-      this.currentFastCraft = FastTrading.cooldownConfig == null || FastTrading.cooldownConfig.isFastCraftEnabled();
-      this.currentFastCraftPos = FastTrading.cooldownConfig != null ? FastTrading.cooldownConfig.getFastCraftPosition() : CooldownConfig.ButtonPosition.RIGHT;
-      this.currentAutoCraft = FastTrading.cooldownConfig == null || FastTrading.cooldownConfig.isAutoCraftEnabled();
+      this.currentFastCraft = FastCraftConfig.get().isFastCraftEnabled();
+      this.currentFastCraftPos = FastCraftConfig.get().getFastCraftPosition();
+      this.currentAutoCraft = FastCraftConfig.get().isAutoCraftEnabled();
       this.currentProxyPos = ProxyConfig.get().getButtonPosition();
    }
 
@@ -192,8 +193,8 @@ public class FastTradingConfigGui extends GuiScreen {
          this.currentFastCraft = !this.currentFastCraft;
          this.fastCraftButton.displayString = getFastCraftText();
       } else if (button.id == 1008) {
-         this.currentFastCraftPos = (this.currentFastCraftPos == CooldownConfig.ButtonPosition.RIGHT) ?
-            CooldownConfig.ButtonPosition.LEFT : CooldownConfig.ButtonPosition.RIGHT;
+         this.currentFastCraftPos = (this.currentFastCraftPos == FastCraftConfig.ButtonPosition.RIGHT) ?
+            FastCraftConfig.ButtonPosition.LEFT : FastCraftConfig.ButtonPosition.RIGHT;
          this.fastCraftPosButton.displayString = getFastCraftPosText();
       } else if (button.id == 1009) {
          this.currentAutoCraft = !this.currentAutoCraft;
@@ -217,11 +218,14 @@ public class FastTradingConfigGui extends GuiScreen {
 
          if (FastTrading.cooldownConfig != null) {
             FastTrading.cooldownConfig.setButtonPosition(this.currentPos);
-            FastTrading.cooldownConfig.setFastCraftEnabled(this.currentFastCraft);
-            FastTrading.cooldownConfig.setFastCraftPosition(this.currentFastCraftPos);
-            FastTrading.cooldownConfig.setAutoCraftEnabled(this.currentAutoCraft);
             CooldownConfig.save(FastTrading.cooldownConfig);
          }
+
+         FastCraftConfig fcc = FastCraftConfig.get();
+         fcc.setFastCraftEnabled(this.currentFastCraft);
+         fcc.setFastCraftPosition(this.currentFastCraftPos);
+         fcc.setAutoCraftEnabled(this.currentAutoCraft);
+         FastCraftConfig.save(fcc);
 
          if (FastTrading.configLoader != null && FastTrading.configLoader.config != null) {
             FastTrading.configLoader.config.isAuto = this.currentAuto;
@@ -239,7 +243,7 @@ public class FastTradingConfigGui extends GuiScreen {
          this.currentPos = CooldownConfig.ButtonPosition.RIGHT;
          this.currentProxyPos = ProxyConfig.ButtonPosition.TOP_RIGHT;
          this.currentFastCraft = true;
-         this.currentFastCraftPos = CooldownConfig.ButtonPosition.RIGHT;
+         this.currentFastCraftPos = FastCraftConfig.ButtonPosition.RIGHT;
          this.autoTradeButton.displayString = getAutoTradeText();
          this.positionButton.displayString = getPositionText();
          this.proxyPositionButton.displayString = getProxyPositionText();

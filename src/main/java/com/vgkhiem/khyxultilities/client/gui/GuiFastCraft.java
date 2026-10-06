@@ -1,7 +1,6 @@
 package com.vgkhiem.khyxultilities.client.gui;
 
-import com.vgkhiem.khyxultilities.FastTrading;
-import com.vgkhiem.khyxultilities.config.CooldownConfig;
+import com.vgkhiem.khyxultilities.config.FastCraftConfig;
 import com.vgkhiem.khyxultilities.util.FastCraftHelper;
 import com.vgkhiem.khyxultilities.util.FastCraftHelper.CraftableRecipe;
 import java.lang.reflect.Field;
@@ -72,15 +71,14 @@ public class GuiFastCraft {
       } catch (Exception ignored) {
       }
 
-      CooldownConfig.ButtonPosition pos = FastTrading.cooldownConfig != null ?
-         FastTrading.cooldownConfig.getFastCraftPosition() : CooldownConfig.ButtonPosition.RIGHT;
+      FastCraftConfig.ButtonPosition pos = FastCraftConfig.get().getFastCraftPosition();
 
       int guiActualLeft = guiLeft;
       if (guiLeft > (gui.width - xSize) / 2 + 10) {
          guiActualLeft = guiLeft - 147;
       }
 
-      if (pos == CooldownConfig.ButtonPosition.LEFT) {
+      if (pos == FastCraftConfig.ButtonPosition.LEFT) {
          int x = guiActualLeft - PANEL_WIDTH - 4;
          if (x >= 2) {
             return x;
@@ -488,6 +486,6 @@ public class GuiFastCraft {
    }
 
    private boolean isFastCraftEnabled() {
-      return FastTrading.cooldownConfig == null || FastTrading.cooldownConfig.isFastCraftEnabled();
+      return FastCraftConfig.get().isFastCraftEnabled();
    }
 }

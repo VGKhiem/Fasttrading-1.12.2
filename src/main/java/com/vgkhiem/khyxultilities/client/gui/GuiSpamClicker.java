@@ -2,6 +2,7 @@ package com.vgkhiem.khyxultilities.client.gui;
 
 import com.vgkhiem.khyxultilities.FastTrading;
 import com.vgkhiem.khyxultilities.config.CooldownConfig;
+import com.vgkhiem.khyxultilities.config.FastCraftConfig;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import net.minecraft.client.Minecraft;
@@ -139,18 +140,17 @@ public class GuiSpamClicker {
          }
 
          boolean fastCraftActive = GuiFastCraft.isApplicable(gui) &&
-            (FastTrading.cooldownConfig == null || FastTrading.cooldownConfig.isFastCraftEnabled());
-         CooldownConfig.ButtonPosition fcPos = FastTrading.cooldownConfig != null ?
-            FastTrading.cooldownConfig.getFastCraftPosition() : CooldownConfig.ButtonPosition.RIGHT;
+            FastCraftConfig.get().isFastCraftEnabled();
+         FastCraftConfig.ButtonPosition fcPos = FastCraftConfig.get().getFastCraftPosition();
          int fcOffset = GuiFastCraft.PANEL_WIDTH + 4;
 
          int rightBase = guiLeft + xSize + 4;
-         if (fastCraftActive && fcPos == CooldownConfig.ButtonPosition.RIGHT) {
+         if (fastCraftActive && fcPos == FastCraftConfig.ButtonPosition.RIGHT) {
             rightBase += fcOffset;
          }
 
          int leftBase = guiActualLeft - btnWidth - 4;
-         if (fastCraftActive && fcPos == CooldownConfig.ButtonPosition.LEFT) {
+         if (fastCraftActive && fcPos == FastCraftConfig.ButtonPosition.LEFT) {
             leftBase -= fcOffset;
          }
 

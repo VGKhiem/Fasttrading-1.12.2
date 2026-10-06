@@ -1,7 +1,6 @@
 package com.vgkhiem.khyxultilities.util;
 
-import com.vgkhiem.khyxultilities.FastTrading;
-import com.vgkhiem.khyxultilities.config.CooldownConfig;
+import com.vgkhiem.khyxultilities.config.FastCraftConfig;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -116,10 +115,10 @@ public class FastCraftHelper {
    }
 
    public static boolean isAutoCraft(IRecipe recipe) {
-      if (recipe == null || FastTrading.cooldownConfig == null) {
+      if (recipe == null) {
          return false;
       }
-      List<String> list = FastTrading.cooldownConfig.autoCraftRecipes;
+      List<String> list = FastCraftConfig.get().autoCraftRecipes;
       if (list == null || list.isEmpty()) {
          return false;
       }
@@ -127,22 +126,23 @@ public class FastCraftHelper {
    }
 
    public static boolean toggleAutoCraft(IRecipe recipe) {
-      if (recipe == null || FastTrading.cooldownConfig == null) {
+      if (recipe == null) {
          return false;
       }
-      if (FastTrading.cooldownConfig.autoCraftRecipes == null) {
-         FastTrading.cooldownConfig.autoCraftRecipes = new ArrayList<>();
+      FastCraftConfig config = FastCraftConfig.get();
+      if (config.autoCraftRecipes == null) {
+         config.autoCraftRecipes = new ArrayList<>();
       }
       String key = getRecipeKey(recipe);
       boolean added;
-      if (FastTrading.cooldownConfig.autoCraftRecipes.contains(key)) {
-         FastTrading.cooldownConfig.autoCraftRecipes.remove(key);
+      if (config.autoCraftRecipes.contains(key)) {
+         config.autoCraftRecipes.remove(key);
          added = false;
       } else {
-         FastTrading.cooldownConfig.autoCraftRecipes.add(key);
+         config.autoCraftRecipes.add(key);
          added = true;
       }
-      CooldownConfig.save(FastTrading.cooldownConfig);
+      FastCraftConfig.save(config);
       return added;
    }
 
@@ -150,10 +150,11 @@ public class FastCraftHelper {
       if (!isApplicable(gui)) {
          return;
       }
-      if (FastTrading.cooldownConfig == null || !FastTrading.cooldownConfig.isAutoCraftEnabled()) {
+      FastCraftConfig config = FastCraftConfig.get();
+      if (!config.isAutoCraftEnabled()) {
          return;
       }
-      List<String> autoList = FastTrading.cooldownConfig.autoCraftRecipes;
+      List<String> autoList = config.autoCraftRecipes;
       if (autoList == null || autoList.isEmpty()) {
          return;
       }
@@ -177,7 +178,7 @@ public class FastCraftHelper {
 
    public static List<CraftableRecipe> findAutoCraftRecipes(GuiContainer gui) {
       List<CraftableRecipe> result = new ArrayList<>();
-      if (!isApplicable(gui) || FastTrading.cooldownConfig == null || FastTrading.cooldownConfig.autoCraftRecipes == null) {
+      if (!isApplicable(gui) || FastCraftConfig.get().autoCraftRecipes == null) {
          return result;
       }
 

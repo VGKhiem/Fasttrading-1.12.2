@@ -3,6 +3,7 @@ package com.vgkhiem.khyxultilities;
 import com.vgkhiem.khyxultilities.client.gui.GuiSpamClicker;
 import com.vgkhiem.khyxultilities.config.ConfigLoader;
 import com.vgkhiem.khyxultilities.config.CooldownConfig;
+import com.vgkhiem.khyxultilities.config.FastCraftConfig;
 import com.vgkhiem.khyxultilities.config.ProxyConfig;
 import com.vgkhiem.khyxultilities.eventhandler.FastTradingEventHandler;
 import com.vgkhiem.khyxultilities.eventhandler.GuiMultiplayerHandler;
@@ -31,6 +32,7 @@ public class FastTrading {
    public static String VERSION = "2.0";
    public static ConfigLoader configLoader = null;
    public static CooldownConfig cooldownConfig = null;
+   public static FastCraftConfig fastCraftConfig = null;
    public static Logger logger;
 
    @EventHandler
@@ -52,6 +54,7 @@ public class FastTrading {
       configLoader = new ConfigLoader(event);
       File configDir = new File(event.getModConfigurationDirectory(), "khyxultilities");
       cooldownConfig = CooldownConfig.load(configDir);
+      fastCraftConfig = FastCraftConfig.load(configDir);
       ProxyConfig.load(configDir);
       logger = event.getModLog();
    }
