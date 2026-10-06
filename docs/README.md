@@ -24,6 +24,8 @@ A Minecraft Forge 1.12.2 client-side utility mod featuring Fast Crafting, Fast V
   - Automatically crafts all queued auto-craft recipes upon opening the inventory or crafting table.
 
 ### 2. Fast Villager Trading
+![Fast Villager Trading](fast_trading.png)
+
 - **Fast Trading Sidebar**: Integrated alongside the villager trading GUI for quick trade selection and execution.
 - **One-Click & Shift-Click Trading**: Trade instantly with a single click or Shift-click to bulk trade until resources run out.
 - **Price Locking & Auto-Trading**: Lock desired trade recipes and automate repeated trades.

@@ -1,8 +1,0 @@
-
-fasttrading.subtitles.buttonswitching=按钮选择声
-fasttrading.tooltip.enablebutton=启用自动交易
-fasttrading.tooltip.disablebutton=停用自动交易
-fasttrading.tooltip.addbutton=添加此交易项到自动交易列表
-fasttrading.tooltip.removebutton=此交易项移出自动交易列表
-fasttrading.tooltip.lockbutton=锁定当前价格\n(只有当前价格自动交易)
-fasttrading.tooltip.unlockbutton=解除价格锁定

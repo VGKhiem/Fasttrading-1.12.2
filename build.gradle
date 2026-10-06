@@ -47,7 +47,7 @@ jar {
     manifest {
         attributes([
             "FMLCorePluginContainsFMLMod": "true",
-            "FMLAT": "fasttrading_at.cfg",
+            "FMLAT": "khyxultilities_at.cfg",
             "FMLCorePlugin": "com.vgkhiem.khyxultilities.asm.CoreModBase"
         ])
     }
