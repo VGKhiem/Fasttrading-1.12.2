@@ -274,8 +274,8 @@ public class GuiFastCraft {
          if (this.hoveredRecipe != null) {
             boolean isAuto = FastCraftHelper.isAutoCraft(this.hoveredRecipe.recipe);
             if (isAuto) {
-               tip.add(TextFormatting.GREEN + "✔ Auto-Craft on Open: ON");
-               tip.add(TextFormatting.RED + "Right-Click: Remove from Auto-Craft");
+               tip.add(TextFormatting.GREEN + "✔ Auto-Craft: ON");
+               tip.add(TextFormatting.RED + "Right-Click: Remove Auto-Craft");
             } else {
                tip.add(TextFormatting.GOLD + "Right-Click: Auto Craft");
             }
