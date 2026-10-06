@@ -174,12 +174,12 @@ public class GuiFastCraft {
       int panelX = getPanelX(gui);
       int panelY = getPanelY(gui);
 
-      this.searchField = new GuiTextField(8801, this.mc.fontRenderer, panelX + 4, panelY + 4, PANEL_WIDTH - 24, 14);
+      this.searchField = new GuiTextField(8801, this.mc.fontRenderer, panelX + 4, panelY + 3, 47, 16);
       this.searchField.setMaxStringLength(32);
       this.searchField.setText(lastSearchText);
       this.searchField.setEnableBackgroundDrawing(true);
 
-      this.autoCraftButton = new GuiAutoCraftButton(8802, panelX + PANEL_WIDTH - 18, panelY + 4, 14, 14, "A");
+      this.autoCraftButton = new GuiAutoCraftButton(8802, panelX + 54, panelY + 2, 18, 18, "A");
       this.autoCraftButton.setActive(this.showOnlyAutoCraft);
 
       refreshRecipes(gui);
@@ -213,11 +213,11 @@ public class GuiFastCraft {
       int panelY = getPanelY(gui);
       if (this.searchField != null) {
          this.searchField.x = panelX + 4;
-         this.searchField.y = panelY + 4;
+         this.searchField.y = panelY + 3;
       }
       if (this.autoCraftButton != null) {
-         this.autoCraftButton.x = panelX + PANEL_WIDTH - 18;
-         this.autoCraftButton.y = panelY + 4;
+         this.autoCraftButton.x = panelX + 54;
+         this.autoCraftButton.y = panelY + 2;
          this.autoCraftButton.setActive(this.showOnlyAutoCraft);
       }
    }
@@ -340,7 +340,7 @@ public class GuiFastCraft {
                tip.add(TextFormatting.GREEN + "✔ Auto-Craft on Open: ON");
                tip.add(TextFormatting.RED + "Right-Click: Remove from Auto-Craft");
             } else {
-               tip.add(TextFormatting.GOLD + "Right-Click: Add to Auto-Craft");
+               tip.add(TextFormatting.GOLD + "Right-Click: Auto Craft");
             }
             if (this.hoveredRecipe.craftableCount > 0) {
                tip.add(TextFormatting.GRAY + "Left-Click: Craft " + TextFormatting.YELLOW + "1");
