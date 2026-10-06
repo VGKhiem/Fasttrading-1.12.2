@@ -24,6 +24,7 @@ public class GuiProxyConfig extends GuiScreen {
    private GuiButton editButton;
    private GuiButton deleteButton;
    private GuiButton doneButton;
+   private GuiButton positionButton;
 
    private final Map<Integer, String> pingResults = new ConcurrentHashMap<Integer, String>();
    private volatile boolean isTestingAll = false;
@@ -45,8 +46,10 @@ public class GuiProxyConfig extends GuiScreen {
 
       this.slotList = new ProxyListSlot(this.mc, this.width, this.height, 46, this.height - 56, 32);
 
-      this.toggleButton = new GuiButton(1001, centerX - 100, 20, 200, 20, getToggleText());
+      this.toggleButton = new GuiButton(1001, centerX - 120, 20, 115, 20, getToggleText());
+      this.positionButton = new GuiButton(1008, centerX + 5, 20, 115, 20, getPositionText());
       this.buttonList.add(this.toggleButton);
+      this.buttonList.add(this.positionButton);
 
       int startX = centerX - 154;
       int row1Y = this.height - 52;
@@ -73,6 +76,10 @@ public class GuiProxyConfig extends GuiScreen {
    private String getToggleText() {
       boolean enabled = ProxyConfig.get().isEnabled();
       return "Proxy: " + (enabled ? TextFormatting.GREEN + "ON" : TextFormatting.RED + "OFF");
+   }
+
+   private String getPositionText() {
+      return "Pos: " + TextFormatting.YELLOW + ProxyConfig.get().getButtonPosition().getDisplayName();
    }
 
    private void updateButtonStates() {
@@ -205,6 +212,10 @@ public class GuiProxyConfig extends GuiScreen {
       } else if (button.id == 1007) {
          ProxyConfig.save();
          this.mc.displayGuiScreen(this.parentScreen);
+      } else if (button.id == 1008) {
+         cfg.setButtonPosition(cfg.getButtonPosition().next());
+         ProxyConfig.save();
+         this.positionButton.displayString = getPositionText();
       }
    }
 

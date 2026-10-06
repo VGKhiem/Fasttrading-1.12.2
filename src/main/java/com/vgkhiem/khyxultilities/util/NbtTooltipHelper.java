@@ -8,6 +8,7 @@ import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.text.TextFormatting;
 import org.lwjgl.input.Keyboard;
 
 public class NbtTooltipHelper {
@@ -65,13 +66,13 @@ public class NbtTooltipHelper {
             }
             Enchantment ench = Enchantment.getEnchantmentByID(id);
             if (ench != null) {
-               validEnchants.add("  §b" + ench.getTranslatedName(lvl));
+               validEnchants.add("  " + TextFormatting.AQUA + ench.getTranslatedName(lvl));
             } else {
-               validEnchants.add("  §cEnchant #" + id + " Cấp: " + lvl);
+               validEnchants.add("  " + TextFormatting.RED + "Enchant #" + id + " Cấp: " + lvl);
             }
          }
          if (!validEnchants.isEmpty()) {
-            tooltip.add("§dEnchantments:");
+            tooltip.add(TextFormatting.LIGHT_PURPLE + "Enchantments:");
             tooltip.addAll(validEnchants);
          }
       }
@@ -81,7 +82,7 @@ public class NbtTooltipHelper {
       if (tag.hasKey("AttributeModifiers", 9)) {
          NBTTagList attrList = tag.getTagList("AttributeModifiers", 10);
          if (!attrList.isEmpty()) {
-            tooltip.add("§6Attribute Modifiers:");
+            tooltip.add(TextFormatting.GOLD + "Attribute Modifiers:");
             for (int i = 0; i < attrList.tagCount(); ++i) {
                NBTTagCompound attr = attrList.getCompoundTagAt(i);
                String name = attr.getString("AttributeName");
@@ -90,7 +91,7 @@ public class NbtTooltipHelper {
                String slot = attr.getString("Slot");
                String slotDisplay = slot.isEmpty() ? "all" : slot;
                String formattedAmt = formatAmount(name, amount, operation);
-               tooltip.add("  §e" + name + ": §a" + formattedAmt + " §8(Slot: " + slotDisplay + ")");
+               tooltip.add("  " + TextFormatting.YELLOW + name + ": " + TextFormatting.GREEN + formattedAmt + " " + TextFormatting.DARK_GRAY + "(Slot: " + slotDisplay + ")");
             }
          }
       }
@@ -123,11 +124,11 @@ public class NbtTooltipHelper {
    private static void appendCanDestroyAndPlace(NBTTagCompound tag, int hideFlags, List<String> tooltip) {
       if ((hideFlags & 8) != 0 && tag.hasKey("CanDestroy", 9)) {
          NBTTagList list = tag.getTagList("CanDestroy", 8);
-         tooltip.add("§aCó thể phá hủy: §7" + list.tagCount() + " khối");
+         tooltip.add(TextFormatting.GREEN + "Có thể phá hủy: " + TextFormatting.GRAY + list.tagCount() + " khối");
       }
       if ((hideFlags & 16) != 0 && tag.hasKey("CanPlaceOn", 9)) {
          NBTTagList list = tag.getTagList("CanPlaceOn", 8);
-         tooltip.add("§aCó thể đặt lên: §7" + list.tagCount() + " khối");
+         tooltip.add(TextFormatting.GREEN + "Có thể đặt lên: " + TextFormatting.GRAY + list.tagCount() + " khối");
       }
    }
 }

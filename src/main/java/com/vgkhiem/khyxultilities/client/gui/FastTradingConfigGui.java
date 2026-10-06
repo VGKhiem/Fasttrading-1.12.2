@@ -2,10 +2,12 @@ package com.vgkhiem.khyxultilities.client.gui;
 
 import com.vgkhiem.khyxultilities.FastTrading;
 import com.vgkhiem.khyxultilities.config.CooldownConfig;
+import com.vgkhiem.khyxultilities.config.ProxyConfig;
 import java.io.IOException;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.util.text.TextFormatting;
 import org.lwjgl.input.Keyboard;
 
 public class FastTradingConfigGui extends GuiScreen {
@@ -14,16 +16,19 @@ public class FastTradingConfigGui extends GuiScreen {
    private GuiTextField guiClickField;
    private GuiButton autoTradeButton;
    private GuiButton positionButton;
+   private GuiButton proxyPositionButton;
    private GuiButton doneButton;
    private GuiButton resetButton;
    private GuiButton cancelButton;
    private boolean currentAuto;
    private CooldownConfig.ButtonPosition currentPos;
+   private ProxyConfig.ButtonPosition currentProxyPos;
 
    public FastTradingConfigGui(GuiScreen parentScreen) {
       this.parentScreen = parentScreen;
       this.currentAuto = FastTrading.configLoader != null && FastTrading.configLoader.config != null && FastTrading.configLoader.config.isAuto;
       this.currentPos = FastTrading.cooldownConfig != null ? FastTrading.cooldownConfig.getButtonPosition() : CooldownConfig.ButtonPosition.RIGHT;
+      this.currentProxyPos = ProxyConfig.get().getButtonPosition();
    }
 
    @Override
@@ -49,6 +54,9 @@ public class FastTradingConfigGui extends GuiScreen {
       this.positionButton = new GuiButton(1005, centerX - 100, 180, 200, 20, getPositionText());
       this.buttonList.add(this.positionButton);
 
+      this.proxyPositionButton = new GuiButton(1006, centerX - 100, 224, 200, 20, getProxyPositionText());
+      this.buttonList.add(this.proxyPositionButton);
+
       int bottomY = this.height - 35;
       this.doneButton = new GuiButton(1002, centerX - 155, bottomY, 100, 20, "Save & Close");
       this.resetButton = new GuiButton(1003, centerX - 50, bottomY, 100, 20, "Reset Default");
@@ -60,11 +68,15 @@ public class FastTradingConfigGui extends GuiScreen {
    }
 
    private String getAutoTradeText() {
-      return "Auto Trade: " + (this.currentAuto ? "§aON" : "§cOFF");
+      return "Auto Trade: " + (this.currentAuto ? TextFormatting.GREEN + "ON" : TextFormatting.RED + "OFF");
    }
 
    private String getPositionText() {
-      return "Button Position: §e" + this.currentPos.getDisplayName();
+      return "Button Position: " + TextFormatting.YELLOW + this.currentPos.getDisplayName();
+   }
+
+   private String getProxyPositionText() {
+      return "Button Position: " + TextFormatting.YELLOW + this.currentProxyPos.getDisplayName();
    }
 
    @Override
@@ -140,6 +152,9 @@ public class FastTradingConfigGui extends GuiScreen {
       } else if (button.id == 1005) {
          this.currentPos = this.currentPos.next();
          this.positionButton.displayString = getPositionText();
+      } else if (button.id == 1006) {
+         this.currentProxyPos = this.currentProxyPos.next();
+         this.proxyPositionButton.displayString = getProxyPositionText();
       } else if (button.id == 1002) {
          try {
             int ft = Integer.parseInt(this.fastTradeField.getText().trim());
@@ -167,14 +182,19 @@ public class FastTradingConfigGui extends GuiScreen {
             FastTrading.configLoader.save();
          }
 
+         ProxyConfig.get().setButtonPosition(this.currentProxyPos);
+         ProxyConfig.save();
+
          this.mc.displayGuiScreen(this.parentScreen);
       } else if (button.id == 1003) {
          this.fastTradeField.setText("50");
          this.guiClickField.setText("100");
          this.currentAuto = true;
          this.currentPos = CooldownConfig.ButtonPosition.RIGHT;
+         this.currentProxyPos = ProxyConfig.ButtonPosition.TOP_RIGHT;
          this.autoTradeButton.displayString = getAutoTradeText();
          this.positionButton.displayString = getPositionText();
+         this.proxyPositionButton.displayString = getProxyPositionText();
       } else if (button.id == 1004) {
          this.mc.displayGuiScreen(this.parentScreen);
       }
@@ -189,6 +209,7 @@ public class FastTradingConfigGui extends GuiScreen {
       this.drawString(this.fontRenderer, "GUI Click Cooldown (ms):", centerX - 100, 80, 0xDDDDDD);
       this.drawString(this.fontRenderer, "Auto Trade on Villager Open:", centerX - 100, 124, 0xDDDDDD);
       this.drawString(this.fontRenderer, "Spam Clicker Position:", centerX - 100, 168, 0xDDDDDD);
+      this.drawString(this.fontRenderer, "Multiplayer Proxy Position:", centerX - 100, 212, 0xDDDDDD);
 
       if (this.fastTradeField != null) {
          this.fastTradeField.drawTextBox();

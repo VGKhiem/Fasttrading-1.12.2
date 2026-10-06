@@ -65,7 +65,7 @@ public class TradingHelper {
          }
       }
 
-      if (lastHave != null) {
+      if (lastHave != null && (excludeSlot == null || !VGKhiemUtils.areItemEqualIgnoreCount(excludeSlot.getStack(), itemStack))) {
          this.gui.click(lastHave, 0, ClickType.PICKUP);
          this.gui.click(lastHave, 0, ClickType.PICKUP_ALL);
          this.gui.click(lastHave, 0, ClickType.PICKUP);
@@ -99,7 +99,7 @@ public class TradingHelper {
          if (tradeAll) {
             this.moveItem(slot1, this.buy1);
          } else {
-            this.moveExactItem(slot1, this.buy1, buy1Item.getCount());
+            this.moveExactCount(slot1, this.buy1, buy1Item.getCount());
          }
          return true;
       }
@@ -118,49 +118,13 @@ public class TradingHelper {
             this.moveItem(slot1, this.buy1);
             this.moveItem(slot2, this.buy2);
          } else {
-            this.moveExactItem(slot1, this.buy1, buy1Item.getCount());
-            this.moveExactItem(slot2, this.buy2, buy2Item.getCount());
+            this.moveExactCount(slot1, this.buy1, buy1Item.getCount());
+            this.moveExactCount(slot2, this.buy2, buy2Item.getCount());
          }
          return true;
       }
 
-      int req1 = buy1Item.getCount();
-      int req2 = buy2Item.getCount();
-
-      Slot slot1 = this.findItem(buy1Item, req1, null);
-      if (slot1 == null) {
-         return false;
-      }
-
-      Slot slot2 = this.findItem(buy2Item, req2, slot1);
-      if (slot2 != null) {
-         if (tradeAll) {
-            this.moveItem(slot1, this.buy1);
-            this.moveItem(slot2, this.buy2);
-         } else {
-            this.moveExactItem(slot1, this.buy1, req1);
-            this.moveExactItem(slot2, this.buy2, req2);
-         }
-         return true;
-      }
-
-      this.gui.click(slot1, 0, ClickType.PICKUP);
-      this.gui.click(slot1, 0, ClickType.PICKUP_ALL);
-      this.gui.click(slot1, 0, ClickType.PICKUP);
-
-      int totalAvailable = slot1.getStack().getCount();
-      if (totalAvailable < req1 + req2) {
-         return false;
-      }
-
-      if (!tradeAll) {
-         this.moveExactToBoth(slot1, this.buy1, req1, this.buy2, req2);
-      } else {
-         int maxTrades = totalAvailable / (req1 + req2);
-         int count2 = Math.min(64, maxTrades * req2);
-         this.moveSplitToBoth(slot1, this.buy1, this.buy2, count2);
-      }
-      return true;
+      return this.prepareSameInputs(buy1Item, buy1Item.getCount(), buy2Item.getCount(), tradeAll);
    }
 
    public int trading(MerchantRecipeList list) {
@@ -200,15 +164,21 @@ public class TradingHelper {
             return tradeCount;
          }
 
+         int buy1Before = this.buy1.getHasStack() ? this.buy1.getStack().getCount() : 0;
+         int buy2Before = this.buy2.getHasStack() ? this.buy2.getStack().getCount() : 0;
+
          this.gui.click(this.sell, 0, ClickType.QUICK_MOVE);
+
+         int buy1After = this.buy1.getHasStack() ? this.buy1.getStack().getCount() : 0;
+         int buy2After = this.buy2.getHasStack() ? this.buy2.getStack().getCount() : 0;
+
+         boolean consumed = (buy1Before != buy1After) || (buy2Before != buy2After) || (!this.sell.getHasStack());
+
          this.clearSlot(this.buy1, this.buy2);
          tradeCount++;
 
-         if (FastTrading.cooldownConfig != null && FastTrading.cooldownConfig.fastTradeCooldown > 0) {
-            try {
-               Thread.sleep(FastTrading.cooldownConfig.fastTradeCooldown);
-            } catch (InterruptedException ignored) {
-            }
+         if (!consumed) {
+            break;
          }
       }
       this.clearSlot(this.buy1, this.buy2);
@@ -260,8 +230,128 @@ public class TradingHelper {
       }
    }
 
-   private void moveExactItem(Slot from, Slot to, int count) {
-      if (from == null || to == null) return;
+   private boolean prepareSameInputs(ItemStack itemToBuy, int req1, int req2, boolean tradeAll) {
+      int totalReq = req1 + req2;
+      List<Slot> slots = this.inventorySlots.inventorySlots;
+      int totalAvailable = 0;
+      for (int i = 3; i < slots.size(); i++) {
+         ItemStack stack = slots.get(i).getStack();
+         if (VGKhiemUtils.areItemEqualIgnoreCount(stack, itemToBuy)) {
+            totalAvailable += stack.getCount();
+         }
+      }
+
+      if (totalAvailable < totalReq) {
+         return false;
+      }
+
+      int maxStack = itemToBuy.getMaxStackSize();
+      int toBuy1;
+      int toBuy2;
+      if (tradeAll) {
+         int maxTrades = Math.min(totalAvailable / totalReq, Math.min(maxStack / req1, maxStack / req2));
+         if (maxTrades <= 0) {
+            return false;
+         }
+         toBuy1 = maxTrades * req1;
+         toBuy2 = maxTrades * req2;
+      } else {
+         toBuy1 = req1;
+         toBuy2 = req2;
+      }
+
+      Slot s1 = null;
+      Slot s2 = null;
+      for (int i = 3; i < slots.size(); i++) {
+         Slot a = slots.get(i);
+         if (a.getHasStack() && VGKhiemUtils.areItemEqualIgnoreCount(a.getStack(), itemToBuy) && a.getStack().getCount() >= toBuy1) {
+            for (int j = 3; j < slots.size(); j++) {
+               if (i == j) continue;
+               Slot b = slots.get(j);
+               if (b.getHasStack() && VGKhiemUtils.areItemEqualIgnoreCount(b.getStack(), itemToBuy) && b.getStack().getCount() >= toBuy2) {
+                  s1 = a;
+                  s2 = b;
+                  break;
+               }
+            }
+            if (s1 != null && s2 != null) break;
+         }
+      }
+
+      if (s1 != null && s2 != null) {
+         this.moveExactCount(s1, this.buy1, toBuy1);
+         this.moveExactCount(s2, this.buy2, toBuy2);
+         return true;
+      }
+
+      Slot singleSlot = null;
+      for (int i = 3; i < slots.size(); i++) {
+         Slot s = slots.get(i);
+         if (s.getHasStack() && VGKhiemUtils.areItemEqualIgnoreCount(s.getStack(), itemToBuy) && s.getStack().getCount() >= toBuy1 + toBuy2) {
+            singleSlot = s;
+            break;
+         }
+      }
+
+      if (singleSlot != null) {
+         this.splitSlotToBoth(singleSlot, this.buy1, toBuy1, this.buy2, toBuy2);
+         return true;
+      }
+
+      Slot firstSlot = null;
+      for (int i = 3; i < slots.size(); i++) {
+         Slot s = slots.get(i);
+         if (s.getHasStack() && VGKhiemUtils.areItemEqualIgnoreCount(s.getStack(), itemToBuy)) {
+            firstSlot = s;
+            break;
+         }
+      }
+
+      if (firstSlot != null) {
+         this.gui.click(firstSlot, 0, ClickType.PICKUP);
+         this.gui.click(firstSlot, 0, ClickType.PICKUP_ALL);
+         this.gui.click(firstSlot, 0, ClickType.PICKUP);
+
+         if (firstSlot.getStack().getCount() >= toBuy1 + toBuy2) {
+            this.splitSlotToBoth(firstSlot, this.buy1, toBuy1, this.buy2, toBuy2);
+            return true;
+         }
+
+         for (int i = 3; i < slots.size(); i++) {
+            Slot a = slots.get(i);
+            if (a.getHasStack() && VGKhiemUtils.areItemEqualIgnoreCount(a.getStack(), itemToBuy) && a.getStack().getCount() >= toBuy1) {
+               for (int j = 3; j < slots.size(); j++) {
+                  if (i == j) continue;
+                  Slot b = slots.get(j);
+                  if (b.getHasStack() && VGKhiemUtils.areItemEqualIgnoreCount(b.getStack(), itemToBuy) && b.getStack().getCount() >= toBuy2) {
+                     this.moveExactCount(a, this.buy1, toBuy1);
+                     this.moveExactCount(b, this.buy2, toBuy2);
+                     return true;
+                  }
+               }
+            }
+         }
+      }
+
+      return false;
+   }
+
+   private void moveExactCount(Slot from, Slot to, int count) {
+      if (from == null || to == null || count <= 0) return;
+      ItemStack stack = from.getStack();
+      if (stack.isEmpty()) return;
+
+      if (stack.getCount() == count) {
+         this.moveItem(from, to);
+         return;
+      }
+
+      if (count == (stack.getCount() + 1) / 2) {
+         this.gui.click(from, 1, ClickType.PICKUP);
+         this.gui.click(to, 0, ClickType.PICKUP);
+         return;
+      }
+
       this.gui.click(from, 0, ClickType.PICKUP);
       for (int i = 0; i < count; i++) {
          this.gui.click(to, 1, ClickType.PICKUP);
@@ -271,29 +361,33 @@ public class TradingHelper {
       }
    }
 
-   private void moveExactToBoth(Slot from, Slot to1, int count1, Slot to2, int count2) {
+   private void splitSlotToBoth(Slot from, Slot to1, int count1, Slot to2, int count2) {
       if (from == null || to1 == null || to2 == null) return;
+      ItemStack stack = from.getStack();
+      if (stack.isEmpty()) return;
+
+      int total = stack.getCount();
+      if (count1 == count2 && count1 + count2 == total) {
+         this.gui.click(from, 1, ClickType.PICKUP);
+         this.gui.click(to2, 0, ClickType.PICKUP);
+         this.gui.click(from, 0, ClickType.PICKUP);
+         this.gui.click(to1, 0, ClickType.PICKUP);
+         return;
+      }
+
       this.gui.click(from, 0, ClickType.PICKUP);
       for (int i = 0; i < count2; i++) {
          this.gui.click(to2, 1, ClickType.PICKUP);
       }
-      for (int i = 0; i < count1; i++) {
-         this.gui.click(to1, 1, ClickType.PICKUP);
-      }
-      if (!this.mc.player.inventory.getItemStack().isEmpty()) {
-         this.gui.click(from, 0, ClickType.PICKUP);
-      }
-   }
-
-   private void moveSplitToBoth(Slot from, Slot to1, Slot to2, int countForTo2) {
-      if (from == null || to1 == null || to2 == null) return;
-      this.gui.click(from, 0, ClickType.PICKUP);
-      for (int i = 0; i < countForTo2; i++) {
-         this.gui.click(to2, 1, ClickType.PICKUP);
-      }
-      this.gui.click(to1, 0, ClickType.PICKUP);
-      if (!this.mc.player.inventory.getItemStack().isEmpty()) {
-         this.gui.click(from, 0, ClickType.PICKUP);
+      if (this.mc.player.inventory.getItemStack().getCount() == count1) {
+         this.gui.click(to1, 0, ClickType.PICKUP);
+      } else {
+         for (int i = 0; i < count1; i++) {
+            this.gui.click(to1, 1, ClickType.PICKUP);
+         }
+         if (!this.mc.player.inventory.getItemStack().isEmpty()) {
+            this.gui.click(from, 0, ClickType.PICKUP);
+         }
       }
    }
 }

@@ -20,7 +20,20 @@ public class GuiMultiplayerHandler {
       if (event.getGui() instanceof GuiMultiplayer) {
          ProxyConfig cfg = ProxyConfig.get();
          String label = "Proxy: " + (cfg.isEnabled() ? TextFormatting.GREEN + "ON" : TextFormatting.RED + "OFF");
-         event.getButtonList().add(new GuiButton(PROXY_BUTTON_ID, event.getGui().width - 85, 5, 80, 20, label));
+         int btnX = event.getGui().width - 85;
+         int btnY = 5;
+         ProxyConfig.ButtonPosition pos = cfg.getButtonPosition();
+         if (pos == ProxyConfig.ButtonPosition.TOP_LEFT) {
+            btnX = 5;
+            btnY = 5;
+         } else if (pos == ProxyConfig.ButtonPosition.BOTTOM_LEFT) {
+            btnX = 5;
+            btnY = event.getGui().height - 25;
+         } else if (pos == ProxyConfig.ButtonPosition.BOTTOM_RIGHT) {
+            btnX = event.getGui().width - 85;
+            btnY = event.getGui().height - 25;
+         }
+         event.getButtonList().add(new GuiButton(PROXY_BUTTON_ID, btnX, btnY, 80, 20, label));
       }
    }
 

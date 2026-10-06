@@ -11,6 +11,7 @@ import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.Slot;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -90,7 +91,7 @@ public class GuiSpamClicker {
    }
 
    private String getSpamText() {
-      return "Spam Slot: " + (spamEnabled ? "§aON" : "§cOFF");
+      return "Spam Slot: " + (spamEnabled ? TextFormatting.GREEN + "ON" : TextFormatting.RED + "OFF");
    }
 
    private String getModeText() {
@@ -98,7 +99,7 @@ public class GuiSpamClicker {
    }
 
    private String getSlotIdText() {
-      return "Slot ID: " + (showSlotIds ? "§aON" : "§cOFF");
+      return "Slot ID: " + (showSlotIds ? TextFormatting.GREEN + "ON" : TextFormatting.RED + "OFF");
    }
 
    private boolean isTargetGui(Object gui) {

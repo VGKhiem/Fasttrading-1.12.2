@@ -23,6 +23,41 @@ public class ProxyConfig {
    public String proxyType = "SOCKS5";
    public String username = "";
    public String password = "";
+   public String buttonPosition = "TOP_RIGHT";
+
+   public enum ButtonPosition {
+      TOP_RIGHT("Top-Right"),
+      TOP_LEFT("Top-Left"),
+      BOTTOM_LEFT("Bottom-Left"),
+      BOTTOM_RIGHT("Bottom-Right");
+
+      private final String displayName;
+
+      ButtonPosition(String displayName) {
+         this.displayName = displayName;
+      }
+
+      public String getDisplayName() {
+         return this.displayName;
+      }
+
+      public ButtonPosition next() {
+         ButtonPosition[] vals = values();
+         return vals[(this.ordinal() + 1) % vals.length];
+      }
+   }
+
+   public ButtonPosition getButtonPosition() {
+      try {
+         return ButtonPosition.valueOf(this.buttonPosition.toUpperCase());
+      } catch (Exception e) {
+         return ButtonPosition.TOP_RIGHT;
+      }
+   }
+
+   public void setButtonPosition(ButtonPosition pos) {
+      this.buttonPosition = pos != null ? pos.name() : ButtonPosition.TOP_RIGHT.name();
+   }
 
    public boolean isEnabled() {
       return this.enabled;
