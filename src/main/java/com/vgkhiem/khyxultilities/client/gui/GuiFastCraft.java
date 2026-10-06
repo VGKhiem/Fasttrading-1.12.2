@@ -181,6 +181,10 @@ public class GuiFastCraft {
       int panelY = getPanelY(gui);
       int panelHeight = getPanelHeight(gui);
 
+      GlStateManager.disableLighting();
+      GlStateManager.enableBlend();
+      GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+
       if (this.searchField != null) {
          this.searchField.drawTextBox();
          if (this.searchField.getText().isEmpty() && !this.searchField.isFocused()) {
@@ -274,16 +278,16 @@ public class GuiFastCraft {
          if (this.hoveredRecipe != null) {
             boolean isAuto = FastCraftHelper.isAutoCraft(this.hoveredRecipe.recipe);
             if (isAuto) {
-               tip.add(TextFormatting.GREEN + "✔ Auto-Craft: ON");
-               tip.add(TextFormatting.RED + "Right-Click: Remove Auto-Craft");
+               tip.add(TextFormatting.GREEN + "✔ Auto-Craft: ON ");
+               tip.add(TextFormatting.RED + "Right-Click: Remove Auto-Craft ");
             } else {
-               tip.add(TextFormatting.GOLD + "Right-Click: Auto Craft");
+               tip.add(TextFormatting.GOLD + "Right-Click: Auto Craft ");
             }
             if (this.hoveredRecipe.craftableCount > 0) {
-               tip.add(TextFormatting.GRAY + "Left-Click: Craft " + TextFormatting.YELLOW + "1");
-               tip.add(TextFormatting.GRAY + "Shift-Left Click: " + TextFormatting.YELLOW + "Craft All");
+               tip.add(TextFormatting.GRAY + "Left-Click: Craft " + TextFormatting.YELLOW + "1 ");
+               tip.add(TextFormatting.GRAY + "Shift-Left Click: " + TextFormatting.YELLOW + "Craft All ");
             } else {
-               tip.add(TextFormatting.RED + "Missing materials to craft");
+               tip.add(TextFormatting.RED + "Missing materials to craft ");
             }
          }
          GuiUtils.drawHoveringText(this.hoveredStack, tip, mouseX, mouseY, gui.width, gui.height, -1, this.mc.fontRenderer);

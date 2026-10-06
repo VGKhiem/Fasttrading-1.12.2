@@ -457,6 +457,7 @@ public class GuiSpamClicker {
             } catch (Exception ignored) {
             }
          }
+         GlStateManager.disableLighting();
       }
 
       if (!spamEnabled) {
@@ -541,7 +542,7 @@ public class GuiSpamClicker {
          }
 
          GlStateManager.enableDepth();
-         GlStateManager.enableLighting();
+         GlStateManager.disableLighting();
          GlStateManager.popMatrix();
       } catch (Exception ignored) {
       }
