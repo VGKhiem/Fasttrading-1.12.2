@@ -1,16 +1,29 @@
 # KhyxUltilities 1.12.2
 
-A Minecraft Forge 1.12.2 client-side utility mod featuring Fast Villager Trading, Alt NBT Tooltip Inspector, Custom GUI Slot Auto-Clicker, and Slot ID Visualizer.
+A Minecraft Forge 1.12.2 client-side utility mod featuring Fast Crafting, Fast Villager Trading, Alt NBT Tooltip Inspector, Custom GUI Slot Auto-Clicker, and Slot ID Visualizer.
 
 **Author**: VGKhiem  
 **Minecraft Version**: 1.12.2  
 **Forge Version**: 14.23.5.2847+  
 
+![Preview](preview.png)
+
 ---
 
 ## Features
 
-### 1. Fast Villager Trading
+### 1. Fast Crafting
+- **Smart Crafting Sidebar**: Integrated directly beside the Inventory and Crafting Table GUIs.
+- **Instant Search**: Real-time recipe search with dedicated search field.
+- **One-Click & Shift-Click Crafting**:
+  - `Left-Click`: Craft 1 item.
+  - `Shift-Left Click`: Craft all available items instantly.
+- **Auto-Craft**:
+  - `Right-Click`: Add or remove recipe from the Auto-Craft list.
+  - Auto-craft recipes are highlighted in soft yellow and pinned to the top slots.
+  - Automatically crafts all queued auto-craft recipes upon opening the inventory or crafting table.
+
+### 2. Fast Villager Trading
 - **Fast Trading Sidebar**: Integrated alongside the villager trading GUI for quick trade selection and execution.
 - **One-Click & Shift-Click Trading**: Trade instantly with a single click or Shift-click to bulk trade until resources run out.
 - **Price Locking & Auto-Trading**: Lock desired trade recipes and automate repeated trades.
@@ -20,14 +33,14 @@ A Minecraft Forge 1.12.2 client-side utility mod featuring Fast Villager Trading
   - Accurate NBT matching for custom items using `ItemStack.areItemStackTagsEqual`.
   - Resolved OptiFine Fast Render conflict causing invisible GUI (OpenGL matrix stack underflow error 1284 and dirty GL state).
 
-### 2. Alt NBT Tooltip Inspector
+### 3. Alt NBT Tooltip Inspector
 - **Hold `Alt`** while hovering over any item in inventories, trading windows, or custom menus to inspect hidden item properties:
   - Hidden enchantments and active enchantment levels (filters out dummy level 0 / glint lore tags).
   - Hidden attribute modifiers with calculated percentages (`+X%` / `-X%`).
   - Slot requirement indicator: `(Slot: all / mainhand / offhand / head / chest / legs / feet)`.
   - Unbreakable tags and raw NBT compound structures.
 
-### 3. Custom GUI Slot Auto-Clicker (Spam Slot)
+### 4. Custom GUI Slot Auto-Clicker (Spam Slot)
 - **Control Panel**: Stacks cleanly on the right side of custom container GUIs (chests, custom menus).
 - **Resource Pack Compatible**: Built using standard Minecraft `GuiButton` textures (`widgets.png`), fully supporting custom GUI resource packs.
 - **Controls**:
@@ -42,7 +55,7 @@ A Minecraft Forge 1.12.2 client-side utility mod featuring Fast Villager Trading
   - `Slot ID: ON / OFF`: Visual overlay displaying slot index numbers directly on the top-left of each slot square in yellow.
   - **Slot Input Box**: Type the target slot number directly (or click any slot when Slot ID is enabled to auto-fill) for hands-free background clicking without hovering the mouse cursor.
 
-### 4. Configuration & In-Game GUI
+### 5. Configuration & In-Game GUI
 - Unified configuration directory: `.minecraft/config/khyxultilities/`
   - `fasttrading.json`: Fast trading settings and trade locks.
   - `cooldown.json`: Click cooldowns (`fastTradeCooldown: 50ms`, `guiClickCooldown: 100ms`).
