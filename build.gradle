@@ -34,6 +34,7 @@ archivesBaseName = "KhyxUltilities-1.12.2"
 sourceCompatibility = targetCompatibility = '1.8'
 compileJava {
     sourceCompatibility = targetCompatibility = '1.8'
+    options.encoding = 'UTF-8'
 }
 
 minecraft {
