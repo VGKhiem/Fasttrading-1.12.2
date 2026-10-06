@@ -124,7 +124,21 @@ public class FastCraftHelper {
       if (list == null || list.isEmpty()) {
          return false;
       }
-      return list.contains(getRecipeKey(recipe));
+      String key = getRecipeKey(recipe);
+      if (list.contains(key)) {
+         return true;
+      }
+      if (recipe.getRegistryName() != null && list.contains(recipe.getRegistryName().toString())) {
+         return true;
+      }
+      ItemStack out = recipe.getRecipeOutput();
+      if (out != null && !out.isEmpty() && out.getItem().getRegistryName() != null) {
+         String itemKey = out.getItem().getRegistryName().toString();
+         if (list.contains(itemKey) || list.contains(itemKey + ":" + out.getMetadata())) {
+            return true;
+         }
+      }
+      return false;
    }
 
    public static boolean toggleAutoCraft(IRecipe recipe) {
@@ -136,12 +150,23 @@ public class FastCraftHelper {
          config.autoCraftRecipes = new ArrayList<>();
       }
       String key = getRecipeKey(recipe);
+      boolean isCurrentlyAuto = isAutoCraft(recipe);
       boolean added;
-      if (config.autoCraftRecipes.contains(key)) {
+      if (isCurrentlyAuto) {
          config.autoCraftRecipes.remove(key);
+         if (recipe.getRegistryName() != null) {
+            config.autoCraftRecipes.remove(recipe.getRegistryName().toString());
+         }
+         ItemStack out = recipe.getRecipeOutput();
+         if (out != null && !out.isEmpty() && out.getItem().getRegistryName() != null) {
+            config.autoCraftRecipes.remove(out.getItem().getRegistryName().toString());
+            config.autoCraftRecipes.remove(out.getItem().getRegistryName().toString() + ":" + out.getMetadata());
+         }
          added = false;
       } else {
-         config.autoCraftRecipes.add(key);
+         if (!config.autoCraftRecipes.contains(key)) {
+            config.autoCraftRecipes.add(key);
+         }
          added = true;
       }
       FastCraftConfig.save(config);
@@ -208,6 +233,9 @@ public class FastCraftHelper {
             }
 
             String key = getRecipeKey(recipe);
+            if (autoKeys.contains(key)) {
+               continue;
+            }
             autoKeys.add(key);
             if (availableMap.containsKey(key)) {
                autoList.add(availableMap.get(key));
@@ -219,6 +247,16 @@ public class FastCraftHelper {
             }
          }
 
+         for (CraftableRecipe cr : available) {
+            if (isAutoCraft(cr.recipe)) {
+               String key = getRecipeKey(cr.recipe);
+               if (!autoKeys.contains(key)) {
+                  autoKeys.add(key);
+                  autoList.add(cr);
+               }
+            }
+         }
+
          autoList.sort(Comparator.comparing((CraftableRecipe a) -> a.displayName.toLowerCase())
             .thenComparing(a -> a.output.getItem().getRegistryName() != null ? a.output.getItem().getRegistryName().toString() : ""));
       }
@@ -226,7 +264,7 @@ public class FastCraftHelper {
       result.addAll(autoList);
 
       for (CraftableRecipe cr : available) {
-         if (!autoKeys.contains(getRecipeKey(cr.recipe))) {
+         if (!isAutoCraft(cr.recipe) && !autoKeys.contains(getRecipeKey(cr.recipe))) {
             result.add(cr);
          }
       }

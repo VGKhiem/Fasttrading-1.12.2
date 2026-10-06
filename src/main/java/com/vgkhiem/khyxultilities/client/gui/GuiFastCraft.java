@@ -216,6 +216,10 @@ public class GuiFastCraft {
             int slotX = panelX + 4 + c * 21;
             int slotY = startY + r * 20;
 
+            GlStateManager.disableLighting();
+            GlStateManager.enableBlend();
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+
             boolean isAuto = FastCraftHelper.isAutoCraft(cr.recipe);
             if (isAuto) {
                Gui.drawRect(slotX, slotY, slotX + 19, slotY + 19, 0x60FFEE55);
@@ -230,6 +234,8 @@ public class GuiFastCraft {
             this.mc.getRenderItem().renderItemAndEffectIntoGUI(cr.output, slotX + 1, slotY + 1);
             RenderHelper.disableStandardItemLighting();
             GlStateManager.popMatrix();
+
+            GlStateManager.disableLighting();
 
             if (cr.craftableCount <= 0) {
                Gui.drawRect(slotX + 1, slotY + 1, slotX + 18, slotY + 18, 0x77000000);
@@ -246,7 +252,6 @@ public class GuiFastCraft {
                int txtY = (int) ((slotY + 12) / 0.65F);
                this.mc.fontRenderer.drawStringWithShadow(countStr, txtX, txtY, 0xFFFF55);
                GlStateManager.enableDepth();
-               GlStateManager.enableLighting();
                GlStateManager.popMatrix();
             }
          }
