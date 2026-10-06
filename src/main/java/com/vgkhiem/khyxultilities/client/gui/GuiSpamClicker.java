@@ -101,11 +101,11 @@ public class GuiSpamClicker {
    }
 
    private String getModeText() {
-      return "Mode: " + currentMode.getDisplayName();
+      return "Mode: " + TextFormatting.YELLOW + currentMode.getDisplayName();
    }
 
    private String getSlotIdText() {
-      return "Slot ID: " + (showSlotIds ? TextFormatting.GREEN + "ON" : TextFormatting.RED + "OFF");
+      return "Show ID: " + (showSlotIds ? TextFormatting.GREEN + "ON" : TextFormatting.RED + "OFF");
    }
 
    private boolean isTargetGui(Object gui) {
