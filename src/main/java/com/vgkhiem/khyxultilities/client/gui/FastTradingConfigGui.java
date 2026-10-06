@@ -17,17 +17,23 @@ public class FastTradingConfigGui extends GuiScreen {
    private GuiButton autoTradeButton;
    private GuiButton positionButton;
    private GuiButton proxyPositionButton;
+   private GuiButton fastCraftButton;
+   private GuiButton fastCraftPosButton;
    private GuiButton doneButton;
    private GuiButton resetButton;
    private GuiButton cancelButton;
    private boolean currentAuto;
+   private boolean currentFastCraft;
    private CooldownConfig.ButtonPosition currentPos;
+   private CooldownConfig.ButtonPosition currentFastCraftPos;
    private ProxyConfig.ButtonPosition currentProxyPos;
 
    public FastTradingConfigGui(GuiScreen parentScreen) {
       this.parentScreen = parentScreen;
       this.currentAuto = FastTrading.configLoader != null && FastTrading.configLoader.config != null && FastTrading.configLoader.config.isAuto;
       this.currentPos = FastTrading.cooldownConfig != null ? FastTrading.cooldownConfig.getButtonPosition() : CooldownConfig.ButtonPosition.RIGHT;
+      this.currentFastCraft = FastTrading.cooldownConfig == null || FastTrading.cooldownConfig.isFastCraftEnabled();
+      this.currentFastCraftPos = FastTrading.cooldownConfig != null ? FastTrading.cooldownConfig.getFastCraftPosition() : CooldownConfig.ButtonPosition.RIGHT;
       this.currentProxyPos = ProxyConfig.get().getButtonPosition();
    }
 
@@ -37,25 +43,34 @@ public class FastTradingConfigGui extends GuiScreen {
       this.buttonList.clear();
 
       int centerX = this.width / 2;
+      int col1X = centerX - 155;
+      int col2X = centerX + 10;
+      int colW = 145;
 
-      this.fastTradeField = new GuiTextField(101, this.fontRenderer, centerX - 100, 48, 200, 20);
+      this.fastTradeField = new GuiTextField(101, this.fontRenderer, col1X, 44, colW, 20);
       this.fastTradeField.setMaxStringLength(6);
       int ftCd = FastTrading.cooldownConfig != null ? FastTrading.cooldownConfig.fastTradeCooldown : 50;
       this.fastTradeField.setText(String.valueOf(ftCd));
 
-      this.guiClickField = new GuiTextField(102, this.fontRenderer, centerX - 100, 92, 200, 20);
+      this.guiClickField = new GuiTextField(102, this.fontRenderer, col1X, 84, colW, 20);
       this.guiClickField.setMaxStringLength(6);
       int gcCd = FastTrading.cooldownConfig != null ? FastTrading.cooldownConfig.guiClickCooldown : 100;
       this.guiClickField.setText(String.valueOf(gcCd));
 
-      this.autoTradeButton = new GuiButton(1001, centerX - 100, 136, 200, 20, getAutoTradeText());
+      this.autoTradeButton = new GuiButton(1001, col1X, 124, colW, 20, getAutoTradeText());
       this.buttonList.add(this.autoTradeButton);
 
-      this.positionButton = new GuiButton(1005, centerX - 100, 180, 200, 20, getPositionText());
+      this.fastCraftButton = new GuiButton(1007, col1X, 164, colW, 20, getFastCraftText());
+      this.buttonList.add(this.fastCraftButton);
+
+      this.positionButton = new GuiButton(1005, col2X, 44, colW, 20, getPositionText());
       this.buttonList.add(this.positionButton);
 
-      this.proxyPositionButton = new GuiButton(1006, centerX - 100, 224, 200, 20, getProxyPositionText());
+      this.proxyPositionButton = new GuiButton(1006, col2X, 84, colW, 20, getProxyPositionText());
       this.buttonList.add(this.proxyPositionButton);
+
+      this.fastCraftPosButton = new GuiButton(1008, col2X, 124, colW, 20, getFastCraftPosText());
+      this.buttonList.add(this.fastCraftPosButton);
 
       int bottomY = this.height - 35;
       this.doneButton = new GuiButton(1002, centerX - 155, bottomY, 100, 20, "Save & Close");
@@ -72,11 +87,19 @@ public class FastTradingConfigGui extends GuiScreen {
    }
 
    private String getPositionText() {
-      return "Button Position: " + TextFormatting.YELLOW + this.currentPos.getDisplayName();
+      return "Spam Pos: " + TextFormatting.YELLOW + this.currentPos.getDisplayName();
    }
 
    private String getProxyPositionText() {
-      return "Button Position: " + TextFormatting.YELLOW + this.currentProxyPos.getDisplayName();
+      return "Proxy Pos: " + TextFormatting.YELLOW + this.currentProxyPos.getDisplayName();
+   }
+
+   private String getFastCraftText() {
+      return "Fast Craft: " + (this.currentFastCraft ? TextFormatting.GREEN + "ON" : TextFormatting.RED + "OFF");
+   }
+
+   private String getFastCraftPosText() {
+      return "Craft Pos: " + TextFormatting.YELLOW + this.currentFastCraftPos.getDisplayName();
    }
 
    @Override
@@ -155,6 +178,13 @@ public class FastTradingConfigGui extends GuiScreen {
       } else if (button.id == 1006) {
          this.currentProxyPos = this.currentProxyPos.next();
          this.proxyPositionButton.displayString = getProxyPositionText();
+      } else if (button.id == 1007) {
+         this.currentFastCraft = !this.currentFastCraft;
+         this.fastCraftButton.displayString = getFastCraftText();
+      } else if (button.id == 1008) {
+         this.currentFastCraftPos = (this.currentFastCraftPos == CooldownConfig.ButtonPosition.RIGHT) ?
+            CooldownConfig.ButtonPosition.LEFT : CooldownConfig.ButtonPosition.RIGHT;
+         this.fastCraftPosButton.displayString = getFastCraftPosText();
       } else if (button.id == 1002) {
          try {
             int ft = Integer.parseInt(this.fastTradeField.getText().trim());
@@ -174,6 +204,8 @@ public class FastTradingConfigGui extends GuiScreen {
 
          if (FastTrading.cooldownConfig != null) {
             FastTrading.cooldownConfig.setButtonPosition(this.currentPos);
+            FastTrading.cooldownConfig.setFastCraftEnabled(this.currentFastCraft);
+            FastTrading.cooldownConfig.setFastCraftPosition(this.currentFastCraftPos);
             CooldownConfig.save(FastTrading.cooldownConfig);
          }
 
@@ -192,9 +224,13 @@ public class FastTradingConfigGui extends GuiScreen {
          this.currentAuto = true;
          this.currentPos = CooldownConfig.ButtonPosition.RIGHT;
          this.currentProxyPos = ProxyConfig.ButtonPosition.TOP_RIGHT;
+         this.currentFastCraft = true;
+         this.currentFastCraftPos = CooldownConfig.ButtonPosition.RIGHT;
          this.autoTradeButton.displayString = getAutoTradeText();
          this.positionButton.displayString = getPositionText();
          this.proxyPositionButton.displayString = getProxyPositionText();
+         this.fastCraftButton.displayString = getFastCraftText();
+         this.fastCraftPosButton.displayString = getFastCraftPosText();
       } else if (button.id == 1004) {
          this.mc.displayGuiScreen(this.parentScreen);
       }
@@ -204,12 +240,15 @@ public class FastTradingConfigGui extends GuiScreen {
    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
       this.drawDefaultBackground();
       int centerX = this.width / 2;
+      int col1X = centerX - 155;
+      int col2X = centerX + 10;
 
-      this.drawString(this.fontRenderer, "Fast Trade Cooldown (ms):", centerX - 100, 36, 0xDDDDDD);
-      this.drawString(this.fontRenderer, "GUI Click Cooldown (ms):", centerX - 100, 80, 0xDDDDDD);
-      this.drawString(this.fontRenderer, "Auto Trade on Villager Open:", centerX - 100, 124, 0xDDDDDD);
-      this.drawString(this.fontRenderer, "Spam Clicker Position:", centerX - 100, 168, 0xDDDDDD);
-      this.drawString(this.fontRenderer, "Multiplayer Proxy Position:", centerX - 100, 212, 0xDDDDDD);
+      this.drawString(this.fontRenderer, "Fast Trade Cooldown (ms):", col1X, 32, 0xDDDDDD);
+      this.drawString(this.fontRenderer, "GUI Click Cooldown (ms):", col1X, 72, 0xDDDDDD);
+
+      this.drawString(this.fontRenderer, "Spam Clicker Position:", col2X, 32, 0xDDDDDD);
+      this.drawString(this.fontRenderer, "Multiplayer Proxy Position:", col2X, 72, 0xDDDDDD);
+      this.drawString(this.fontRenderer, "Fast Craft Position:", col2X, 112, 0xDDDDDD);
 
       if (this.fastTradeField != null) {
          this.fastTradeField.drawTextBox();

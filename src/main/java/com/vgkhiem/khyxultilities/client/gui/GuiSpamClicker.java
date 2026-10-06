@@ -31,6 +31,9 @@ public class GuiSpamClicker {
    private static Field hoveredSlotField;
    private static Method renderHoveredToolTipMethod;
 
+   private static Field textFieldXField;
+   private static Field textFieldYField;
+
    private static boolean spamEnabled = false;
    private static boolean showSlotIds = false;
    private static GuiClickMode currentMode = GuiClickMode.SHIFT_LEFT;
@@ -53,6 +56,8 @@ public class GuiSpamClicker {
          hoveredSlotField = ReflectionHelper.findField(GuiContainer.class, "hoveredSlot", "field_147006_u");
          renderHoveredToolTipMethod = ReflectionHelper.findMethod(GuiContainer.class, "renderHoveredToolTip", "func_191948_b", int.class, int.class);
          renderHoveredToolTipMethod.setAccessible(true);
+         textFieldXField = ReflectionHelper.findField(GuiTextField.class, "x", "field_146209_f");
+         textFieldYField = ReflectionHelper.findField(GuiTextField.class, "y", "field_146210_g");
       } catch (Exception e) {
          e.printStackTrace();
       }
@@ -106,17 +111,16 @@ public class GuiSpamClicker {
       return gui instanceof GuiContainer && !(gui instanceof GuiMerchantOverride);
    }
 
-   @SubscribeEvent
-   public void onInitGui(GuiScreenEvent.InitGuiEvent.Post event) {
-      if (!isTargetGui(event.getGui())) {
+   private void updateButtonLayout(GuiContainer gui) {
+      if (gui == null) {
          return;
       }
 
-      GuiContainer gui = (GuiContainer) event.getGui();
       try {
          int guiLeft = guiLeftField != null ? guiLeftField.getInt(gui) : (gui.width - 176) / 2;
          int guiTop = guiTopField != null ? guiTopField.getInt(gui) : (gui.height - 166) / 2;
          int xSize = xSizeField != null ? xSizeField.getInt(gui) : 176;
+         int ySize = ySizeField != null ? ySizeField.getInt(gui) : 166;
 
          CooldownConfig.ButtonPosition pos = FastTrading.cooldownConfig != null ?
             FastTrading.cooldownConfig.getButtonPosition() : CooldownConfig.ButtonPosition.RIGHT;
@@ -129,24 +133,58 @@ public class GuiSpamClicker {
          int slotIdX, slotIdY;
          int inputX, inputY;
 
+         int guiActualLeft = guiLeft;
+         if (guiLeft > (gui.width - xSize) / 2 + 10) {
+            guiActualLeft = guiLeft - 147;
+         }
+
+         boolean fastCraftActive = GuiFastCraft.isApplicable(gui) &&
+            (FastTrading.cooldownConfig == null || FastTrading.cooldownConfig.isFastCraftEnabled());
+         CooldownConfig.ButtonPosition fcPos = FastTrading.cooldownConfig != null ?
+            FastTrading.cooldownConfig.getFastCraftPosition() : CooldownConfig.ButtonPosition.RIGHT;
+         int fcOffset = GuiFastCraft.PANEL_WIDTH + 4;
+
+         int rightBase = guiLeft + xSize + 4;
+         if (fastCraftActive && fcPos == CooldownConfig.ButtonPosition.RIGHT) {
+            rightBase += fcOffset;
+         }
+
+         int leftBase = guiActualLeft - btnWidth - 4;
+         if (fastCraftActive && fcPos == CooldownConfig.ButtonPosition.LEFT) {
+            leftBase -= fcOffset;
+         }
+
          if (pos == CooldownConfig.ButtonPosition.LEFT) {
-            int btnX = guiLeft - btnWidth - 4;
+            int btnX = leftBase;
             if (btnX < 2) {
-               btnX = 2;
+               if (rightBase + btnWidth <= gui.width - 2) {
+                  btnX = rightBase;
+               } else {
+                  btnX = 2;
+               }
+            }
+            int startY = guiTop + 4;
+            if (startY + 88 > gui.height - 2) {
+               startY = Math.max(2, gui.height - 90);
             }
             spamX = modeX = slotIdX = inputX = btnX;
-            spamY = guiTop + 4;
-            modeY = guiTop + 26;
-            slotIdY = guiTop + 48;
-            inputY = guiTop + 70;
+            spamY = startY;
+            modeY = startY + 22;
+            slotIdY = startY + 44;
+            inputY = startY + 66;
          } else if (pos == CooldownConfig.ButtonPosition.TOP) {
             int startX = guiLeft + (xSize - (btnWidth * 2 + 4)) / 2;
             if (startX < 2) {
                startX = 2;
+            } else if (startX + (btnWidth * 2 + 4) > gui.width - 2) {
+               startX = Math.max(2, gui.width - (btnWidth * 2 + 4) - 2);
             }
             int startY = guiTop - (btnHeight * 2 + 4);
             if (startY < 2) {
-               startY = 2;
+               startY = guiTop + ySize + 4;
+               if (startY + btnHeight * 2 + 2 > gui.height - 2) {
+                  startY = Math.max(2, gui.height - btnHeight * 2 - 4);
+               }
             }
             spamX = startX;
             spamY = startY;
@@ -161,11 +199,15 @@ public class GuiSpamClicker {
             int startX = guiLeft + (xSize - (btnWidth * 2 + 4)) / 2;
             if (startX < 2) {
                startX = 2;
+            } else if (startX + (btnWidth * 2 + 4) > gui.width - 2) {
+               startX = Math.max(2, gui.width - (btnWidth * 2 + 4) - 2);
             }
-            int ySize = ySizeField != null ? ySizeField.getInt(gui) : 166;
             int startY = guiTop + ySize + 4;
             if (startY + btnHeight * 2 + 2 > gui.height - 2) {
-               startY = Math.max(2, gui.height - btnHeight * 2 - 4);
+               startY = guiTop - (btnHeight * 2 + 4);
+               if (startY < 2) {
+                  startY = 2;
+               }
             }
             spamX = startX;
             spamY = startY;
@@ -177,38 +219,133 @@ public class GuiSpamClicker {
             inputX = startX + btnWidth + 4;
             inputY = startY + btnHeight + 2;
          } else {
-            int btnX = guiLeft + xSize + 4;
+            int btnX = rightBase;
             if (btnX + btnWidth > gui.width - 2) {
-               if (guiLeft - btnWidth - 4 >= 2) {
-                  btnX = guiLeft - btnWidth - 4;
+               if (leftBase >= 2) {
+                  btnX = leftBase;
                } else {
-                  btnX = Math.max(2, gui.width - btnWidth - 2);
+                  int startX = guiLeft + (xSize - (btnWidth * 2 + 4)) / 2;
+                  if (startX < 2) {
+                     startX = 2;
+                  } else if (startX + (btnWidth * 2 + 4) > gui.width - 2) {
+                     startX = Math.max(2, gui.width - (btnWidth * 2 + 4) - 2);
+                  }
+                  int startY = guiTop - (btnHeight * 2 + 4);
+                  if (startY < 2) {
+                     startY = guiTop + ySize + 4;
+                     if (startY + btnHeight * 2 + 2 > gui.height - 2) {
+                        startY = Math.max(2, gui.height - btnHeight * 2 - 4);
+                     }
+                  }
+                  spamX = startX;
+                  spamY = startY;
+                  modeX = startX + btnWidth + 4;
+                  modeY = startY;
+
+                  slotIdX = startX;
+                  slotIdY = startY + btnHeight + 2;
+                  inputX = startX + btnWidth + 4;
+                  inputY = startY + btnHeight + 2;
+
+                  applyCoordinates(spamX, spamY, modeX, modeY, slotIdX, slotIdY, inputX, inputY);
+                  return;
                }
             }
+            int startY = guiTop + 4;
+            if (startY + 88 > gui.height - 2) {
+               startY = Math.max(2, gui.height - 90);
+            }
             spamX = modeX = slotIdX = inputX = btnX;
-            spamY = guiTop + 4;
-            modeY = guiTop + 26;
-            slotIdY = guiTop + 48;
-            inputY = guiTop + 70;
+            spamY = startY;
+            modeY = startY + 22;
+            slotIdY = startY + 44;
+            inputY = startY + 66;
          }
 
-         this.spamButton = new GuiButton(BTN_SPAM_ID, spamX, spamY, btnWidth, btnHeight, getSpamText());
-         this.modeButton = new GuiButton(BTN_MODE_ID, modeX, modeY, btnWidth, btnHeight, getModeText());
-         this.slotIdButton = new GuiButton(BTN_SLOT_ID, slotIdX, slotIdY, btnWidth, btnHeight, getSlotIdText());
+         applyCoordinates(spamX, spamY, modeX, modeY, slotIdX, slotIdY, inputX, inputY);
+      } catch (Exception e) {
+         e.printStackTrace();
+      }
+   }
 
-         this.slotInputField = new GuiTextField(7704, this.mc.fontRenderer, inputX + 32, inputY + 2, 50, 16);
+   private void applyCoordinates(int spamX, int spamY, int modeX, int modeY, int slotIdX, int slotIdY, int inputX, int inputY) {
+      if (this.spamButton != null) {
+         this.spamButton.x = spamX;
+         this.spamButton.y = spamY;
+      }
+      if (this.modeButton != null) {
+         this.modeButton.x = modeX;
+         this.modeButton.y = modeY;
+      }
+      if (this.slotIdButton != null) {
+         this.slotIdButton.x = slotIdX;
+         this.slotIdButton.y = slotIdY;
+      }
+      if (this.slotInputRow != null) {
+         this.slotInputRow.x = inputX;
+         this.slotInputRow.y = inputY;
+      }
+      if (this.slotInputField != null) {
+         boolean moved = false;
+         try {
+            if (textFieldXField != null) {
+               textFieldXField.setInt(this.slotInputField, inputX + 32);
+               moved = true;
+            }
+            if (textFieldYField != null) {
+               textFieldYField.setInt(this.slotInputField, inputY + 2);
+            }
+         } catch (Exception ignored) {
+         }
+         if (!moved) {
+            String curText = this.slotInputField.getText();
+            boolean focused = this.slotInputField.isFocused();
+            this.slotInputField = new GuiTextField(7704, this.mc.fontRenderer, inputX + 32, inputY + 2, 50, 16);
+            this.slotInputField.setMaxStringLength(4);
+            this.slotInputField.setText(curText);
+            this.slotInputField.setFocused(focused);
+         }
+      }
+   }
+
+   @SubscribeEvent
+   public void onInitGui(GuiScreenEvent.InitGuiEvent.Post event) {
+      if (!isTargetGui(event.getGui())) {
+         return;
+      }
+
+      GuiContainer gui = (GuiContainer) event.getGui();
+      try {
+         int btnWidth = 85;
+         int btnHeight = 20;
+
+         this.spamButton = new GuiButton(BTN_SPAM_ID, 0, 0, btnWidth, btnHeight, getSpamText());
+         this.modeButton = new GuiButton(BTN_MODE_ID, 0, 0, btnWidth, btnHeight, getModeText());
+         this.slotIdButton = new GuiButton(BTN_SLOT_ID, 0, 0, btnWidth, btnHeight, getSlotIdText());
+
+         this.slotInputField = new GuiTextField(7704, this.mc.fontRenderer, 32, 2, 50, 16);
          this.slotInputField.setMaxStringLength(4);
          this.slotInputField.setText(targetSlotText);
 
-         this.slotInputRow = new GuiSlotInputRow(7705, inputX, inputY, btnWidth, btnHeight);
+         this.slotInputRow = new GuiSlotInputRow(7705, 0, 0, btnWidth, btnHeight);
 
          event.getButtonList().add(this.spamButton);
          event.getButtonList().add(this.modeButton);
          event.getButtonList().add(this.slotIdButton);
          event.getButtonList().add(this.slotInputRow);
+
+         updateButtonLayout(gui);
       } catch (Exception e) {
          e.printStackTrace();
       }
+   }
+
+   @SubscribeEvent
+   public void onDrawScreenPre(GuiScreenEvent.DrawScreenEvent.Pre event) {
+      if (!isTargetGui(event.getGui())) {
+         return;
+      }
+      updateButtonLayout((GuiContainer) event.getGui());
    }
 
    @SubscribeEvent
@@ -273,6 +410,7 @@ public class GuiSpamClicker {
 
       if (button == 0 && buttonState) {
          GuiContainer gui = (GuiContainer) event.getGui();
+         updateButtonLayout(gui);
          int mouseX = Mouse.getEventX() * gui.width / this.mc.displayWidth;
          int mouseY = gui.height - Mouse.getEventY() * gui.height / this.mc.displayHeight - 1;
 

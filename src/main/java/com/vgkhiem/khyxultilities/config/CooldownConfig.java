@@ -13,6 +13,8 @@ public class CooldownConfig {
    public int fastTradeCooldown = 50;
    public int guiClickCooldown = 100;
    public String buttonPosition = "RIGHT";
+   public boolean fastCraftEnabled = true;
+   public String fastCraftPosition = "RIGHT";
 
    public enum ButtonPosition {
       RIGHT("Right"),
@@ -46,6 +48,27 @@ public class CooldownConfig {
 
    public void setButtonPosition(ButtonPosition pos) {
       this.buttonPosition = pos.name();
+   }
+
+   public boolean isFastCraftEnabled() {
+      return this.fastCraftEnabled;
+   }
+
+   public void setFastCraftEnabled(boolean enabled) {
+      this.fastCraftEnabled = enabled;
+   }
+
+   public ButtonPosition getFastCraftPosition() {
+      try {
+         ButtonPosition pos = ButtonPosition.valueOf(this.fastCraftPosition.toUpperCase());
+         return (pos == ButtonPosition.LEFT) ? ButtonPosition.LEFT : ButtonPosition.RIGHT;
+      } catch (Exception e) {
+         return ButtonPosition.RIGHT;
+      }
+   }
+
+   public void setFastCraftPosition(ButtonPosition pos) {
+      this.fastCraftPosition = (pos == ButtonPosition.LEFT) ? "LEFT" : "RIGHT";
    }
 
    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();

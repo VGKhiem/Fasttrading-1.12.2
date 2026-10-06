@@ -37,6 +37,7 @@ public class FastTrading {
    public void init(FMLInitializationEvent event) {
       MinecraftForge.EVENT_BUS.register(new FastTradingEventHandler());
       MinecraftForge.EVENT_BUS.register(new GuiSpamClicker());
+      MinecraftForge.EVENT_BUS.register(new com.vgkhiem.khyxultilities.client.gui.GuiFastCraft());
       MinecraftForge.EVENT_BUS.register(new GuiMultiplayerHandler());
       MinecraftForge.EVENT_BUS.register(this);
       new KeyLoader();
