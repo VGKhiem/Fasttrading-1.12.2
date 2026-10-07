@@ -328,7 +328,7 @@ public class GuiFastCraft {
          List<String> tip = new ArrayList<>();
          boolean isAuto = FastCraftConfig.get().isAutoCraftEnabled();
          tip.add(TextFormatting.YELLOW + "Auto-Craft: " + (isAuto ? TextFormatting.GREEN + "ON" : TextFormatting.RED + "OFF"));
-         tip.add(TextFormatting.GRAY + "Click to toggle automated crafting");
+         tip.add(TextFormatting.GRAY + "Click to toggle automated crafting ");
          GuiUtils.drawHoveringText(tip, mouseX, mouseY, gui.width, gui.height, -1, this.mc.fontRenderer);
       }
    }
