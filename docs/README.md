@@ -77,6 +77,6 @@ A Minecraft Forge 1.12.2 client-side utility mod featuring Fast Crafting, Fast V
 
 The compiled mod JAR will be located at:
 ```
-build/libs/KhyxUltilities-1.12.2-2.0.jar
+build/libs/KhyxUltilities-1.12.2-1.2.jar
 ```
 
