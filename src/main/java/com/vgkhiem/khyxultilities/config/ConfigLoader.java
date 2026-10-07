@@ -36,9 +36,9 @@ public class ConfigLoader {
          }
       }
 
-      JsonReader j = new JsonReader(new FileReader(this.configFile));
-      this.config = (ConfigJson)this.gson.fromJson(j, ConfigJson.class);
-      j.close();
+      try (JsonReader j = new JsonReader(new java.io.InputStreamReader(new java.io.FileInputStream(this.configFile), java.nio.charset.StandardCharsets.UTF_8))) {
+         this.config = (ConfigJson)this.gson.fromJson(j, ConfigJson.class);
+      }
       if (null == this.config || null == this.config.recipeList) {
          this.config = new ConfigJson(true, new ConfigJson.SimpleRecipe[0]);
       }
@@ -57,36 +57,22 @@ public class ConfigLoader {
          this.save0(configJson);
          this.oldConfig = (ConfigJson)configJson.clone();
       }
-
    }
 
    private void save0(ConfigJson configJson) {
       String s = this.gson.toJson(configJson);
-      BufferedOutputStream buffered = null;
-
-      try {
-         buffered = new BufferedOutputStream(new FileOutputStream(this.configFile));
-         buffered.write(s.getBytes());
-         buffered.flush();
+      try (java.io.OutputStreamWriter writer = new java.io.OutputStreamWriter(new FileOutputStream(this.configFile), java.nio.charset.StandardCharsets.UTF_8)) {
+         writer.write(s);
+         writer.flush();
       } catch (IOException e) {
          e.printStackTrace();
-      } finally {
-         if (null != buffered) {
-            try {
-               buffered.close();
-            } catch (IOException e) {
-               e.printStackTrace();
-            }
-         }
-
       }
-
    }
 
    private void fileInit(File configFile) throws IOException {
-      BufferedOutputStream buff = new BufferedOutputStream(new FileOutputStream(configFile));
-      buff.write("{}".getBytes());
-      buff.flush();
-      buff.close();
+      try (java.io.OutputStreamWriter writer = new java.io.OutputStreamWriter(new FileOutputStream(configFile), java.nio.charset.StandardCharsets.UTF_8)) {
+         writer.write("{}");
+         writer.flush();
+      }
    }
 }

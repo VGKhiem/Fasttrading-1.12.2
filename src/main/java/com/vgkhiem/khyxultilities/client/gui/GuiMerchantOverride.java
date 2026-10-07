@@ -27,7 +27,7 @@ public class GuiMerchantOverride extends GuiMerchant {
    public TradingHelper helper = new TradingHelper(this);
    public MerchantRecipeList merchantRecipeList;
    private IMerchant iMerchant;
-   private int lastClickTime;
+   private long lastClickTime;
    private GuiButton lastClickButton;
    private ArrayList<GuiRecipeButton> recipeButtonList = new ArrayList();
    private GuiIconButton onButton;
@@ -149,7 +149,7 @@ public class GuiMerchantOverride extends GuiMerchant {
    }
 
    protected void actionPerformed(GuiButton button) throws IOException {
-      int currentTime = (int)System.currentTimeMillis() % Integer.MAX_VALUE;
+      long currentTime = System.currentTimeMillis();
       super.actionPerformed(button);
       if (this.merchantRecipeList == null) {
          this.merchantRecipeList = this.iMerchant.getRecipes(this.mc.player);
@@ -161,7 +161,7 @@ public class GuiMerchantOverride extends GuiMerchant {
       if (this.recipeButtonList.contains(button)) {
          int recipeIndex = button.id - 300;
          this.setCurrentRecipe(recipeIndex);
-         if (this.lastClickTime > currentTime - 500 && this.lastClickButton == button) {
+         if (currentTime - this.lastClickTime < 500 && this.lastClickButton == button) {
             if (isShiftKeyDown()) {
                this.startNonBlockingTrading(recipeIndex, false);
             } else {
