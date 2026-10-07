@@ -1,9 +1,9 @@
 package com.vgkhiem.khyxultilities.client.gui;
 
 import com.vgkhiem.khyxultilities.FastTrading;
-import com.vgkhiem.khyxultilities.config.CooldownConfig;
 import com.vgkhiem.khyxultilities.config.FastCraftConfig;
 import com.vgkhiem.khyxultilities.config.ProxyConfig;
+import com.vgkhiem.khyxultilities.config.SettingsConfig;
 import java.io.IOException;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -29,18 +29,18 @@ public class FastTradingConfigGui extends GuiScreen {
    private boolean currentFastCraft;
    private boolean currentAutoCraft;
    private boolean currentShowRedNumbers;
-   private CooldownConfig.ButtonPosition currentPos;
+   private SettingsConfig.ButtonPosition currentPos;
    private FastCraftConfig.ButtonPosition currentFastCraftPos;
    private ProxyConfig.ButtonPosition currentProxyPos;
 
    public FastTradingConfigGui(GuiScreen parentScreen) {
       this.parentScreen = parentScreen;
       this.currentAuto = FastTrading.configLoader != null && FastTrading.configLoader.config != null && FastTrading.configLoader.config.isAuto;
-      this.currentPos = FastTrading.cooldownConfig != null ? FastTrading.cooldownConfig.getButtonPosition() : CooldownConfig.ButtonPosition.RIGHT;
+      this.currentPos = FastTrading.settingsConfig != null ? FastTrading.settingsConfig.getButtonPosition() : SettingsConfig.ButtonPosition.RIGHT;
       this.currentFastCraft = FastCraftConfig.get().isFastCraftEnabled();
       this.currentFastCraftPos = FastCraftConfig.get().getFastCraftPosition();
       this.currentAutoCraft = FastCraftConfig.get().isAutoCraftEnabled();
-      this.currentShowRedNumbers = FastTrading.cooldownConfig != null && FastTrading.cooldownConfig.showRedNumbers;
+      this.currentShowRedNumbers = FastTrading.settingsConfig != null && FastTrading.settingsConfig.showRedNumbers;
       this.currentProxyPos = ProxyConfig.get().getButtonPosition();
    }
 
@@ -56,12 +56,12 @@ public class FastTradingConfigGui extends GuiScreen {
 
       this.fastTradeField = new GuiTextField(101, this.fontRenderer, col1X, 44, colW, 20);
       this.fastTradeField.setMaxStringLength(6);
-      int ftCd = FastTrading.cooldownConfig != null ? FastTrading.cooldownConfig.fastTradeCooldown : 50;
+      int ftCd = FastTrading.settingsConfig != null ? FastTrading.settingsConfig.fastTradeCooldown : 50;
       this.fastTradeField.setText(String.valueOf(ftCd));
 
       this.guiClickField = new GuiTextField(102, this.fontRenderer, col1X, 84, colW, 20);
       this.guiClickField.setMaxStringLength(6);
-      int gcCd = FastTrading.cooldownConfig != null ? FastTrading.cooldownConfig.guiClickCooldown : 100;
+      int gcCd = FastTrading.settingsConfig != null ? FastTrading.settingsConfig.guiClickCooldown : 100;
       this.guiClickField.setText(String.valueOf(gcCd));
 
       this.autoTradeButton = new GuiButton(1001, col1X, 124, colW, 20, getAutoTradeText());
@@ -215,24 +215,24 @@ public class FastTradingConfigGui extends GuiScreen {
       } else if (button.id == 1002) {
          try {
             int ft = Integer.parseInt(this.fastTradeField.getText().trim());
-            if (ft >= 0 && FastTrading.cooldownConfig != null) {
-               FastTrading.cooldownConfig.fastTradeCooldown = ft;
+            if (ft >= 0 && FastTrading.settingsConfig != null) {
+               FastTrading.settingsConfig.fastTradeCooldown = ft;
             }
          } catch (NumberFormatException ignored) {
          }
 
          try {
             int gc = Integer.parseInt(this.guiClickField.getText().trim());
-            if (gc >= 0 && FastTrading.cooldownConfig != null) {
-               FastTrading.cooldownConfig.guiClickCooldown = gc;
+            if (gc >= 0 && FastTrading.settingsConfig != null) {
+               FastTrading.settingsConfig.guiClickCooldown = gc;
             }
          } catch (NumberFormatException ignored) {
          }
 
-         if (FastTrading.cooldownConfig != null) {
-            FastTrading.cooldownConfig.showRedNumbers = this.currentShowRedNumbers;
-            FastTrading.cooldownConfig.setButtonPosition(this.currentPos);
-            CooldownConfig.save(FastTrading.cooldownConfig);
+         if (FastTrading.settingsConfig != null) {
+            FastTrading.settingsConfig.showRedNumbers = this.currentShowRedNumbers;
+            FastTrading.settingsConfig.setButtonPosition(this.currentPos);
+            SettingsConfig.save(FastTrading.settingsConfig);
          }
 
          FastCraftConfig fcc = FastCraftConfig.get();
@@ -254,7 +254,7 @@ public class FastTradingConfigGui extends GuiScreen {
          this.fastTradeField.setText("50");
          this.guiClickField.setText("100");
          this.currentAuto = true;
-         this.currentPos = CooldownConfig.ButtonPosition.RIGHT;
+         this.currentPos = SettingsConfig.ButtonPosition.RIGHT;
          this.currentProxyPos = ProxyConfig.ButtonPosition.TOP_RIGHT;
          this.currentFastCraft = true;
          this.currentFastCraftPos = FastCraftConfig.ButtonPosition.RIGHT;

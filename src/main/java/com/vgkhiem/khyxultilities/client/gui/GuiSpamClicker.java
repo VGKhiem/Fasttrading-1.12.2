@@ -1,8 +1,8 @@
 package com.vgkhiem.khyxultilities.client.gui;
 
 import com.vgkhiem.khyxultilities.FastTrading;
-import com.vgkhiem.khyxultilities.config.CooldownConfig;
 import com.vgkhiem.khyxultilities.config.FastCraftConfig;
+import com.vgkhiem.khyxultilities.config.SettingsConfig;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import net.minecraft.client.Minecraft;
@@ -123,8 +123,8 @@ public class GuiSpamClicker {
          int xSize = xSizeField != null ? xSizeField.getInt(gui) : 176;
          int ySize = ySizeField != null ? ySizeField.getInt(gui) : 166;
 
-         CooldownConfig.ButtonPosition pos = FastTrading.cooldownConfig != null ?
-            FastTrading.cooldownConfig.getButtonPosition() : CooldownConfig.ButtonPosition.RIGHT;
+         SettingsConfig.ButtonPosition pos = FastTrading.settingsConfig != null ?
+            FastTrading.settingsConfig.getButtonPosition() : SettingsConfig.ButtonPosition.RIGHT;
 
          int btnWidth = 85;
          int btnHeight = 20;
@@ -154,7 +154,7 @@ public class GuiSpamClicker {
             leftBase -= fcOffset;
          }
 
-         if (pos == CooldownConfig.ButtonPosition.LEFT) {
+         if (pos == SettingsConfig.ButtonPosition.LEFT) {
             int btnX = leftBase;
             if (btnX < 2) {
                if (rightBase + btnWidth <= gui.width - 2) {
@@ -172,7 +172,7 @@ public class GuiSpamClicker {
             modeY = startY + 22;
             slotIdY = startY + 44;
             inputY = startY + 66;
-         } else if (pos == CooldownConfig.ButtonPosition.TOP) {
+         } else if (pos == SettingsConfig.ButtonPosition.TOP) {
             int startX = guiLeft + (xSize - (btnWidth * 2 + 4)) / 2;
             if (startX < 2) {
                startX = 2;
@@ -195,7 +195,7 @@ public class GuiSpamClicker {
             slotIdY = startY + btnHeight + 2;
             inputX = startX + btnWidth + 4;
             inputY = startY + btnHeight + 2;
-         } else if (pos == CooldownConfig.ButtonPosition.BOTTOM) {
+         } else if (pos == SettingsConfig.ButtonPosition.BOTTOM) {
             int startX = guiLeft + (xSize - (btnWidth * 2 + 4)) / 2;
             if (startX < 2) {
                startX = 2;
@@ -465,7 +465,7 @@ public class GuiSpamClicker {
       }
 
       long now = System.currentTimeMillis();
-      long cooldown = FastTrading.cooldownConfig != null ? FastTrading.cooldownConfig.guiClickCooldown : 100;
+      long cooldown = FastTrading.settingsConfig != null ? FastTrading.settingsConfig.guiClickCooldown : 100;
       if (now - this.lastClickTime < cooldown) {
          return;
       }

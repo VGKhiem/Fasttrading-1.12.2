@@ -360,7 +360,7 @@ public class GuiMerchantOverride extends GuiMerchant {
       }
 
       long now = System.currentTimeMillis();
-      long cooldown = FastTrading.cooldownConfig != null ? FastTrading.cooldownConfig.fastTradeCooldown : 50;
+      long cooldown = FastTrading.settingsConfig != null ? FastTrading.settingsConfig.fastTradeCooldown : 50;
       if (cooldown < 20) {
          cooldown = 20;
       }

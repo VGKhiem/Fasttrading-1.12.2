@@ -23,7 +23,7 @@ public class ScoreboardHandler {
    @SubscribeEvent
    public void onRenderOverlayPre(RenderGameOverlayEvent.Pre event) {
       if (event.getType() == RenderGameOverlayEvent.ElementType.ALL) {
-         boolean show = FastTrading.cooldownConfig == null || FastTrading.cooldownConfig.showRedNumbers;
+         boolean show = FastTrading.settingsConfig == null || FastTrading.settingsConfig.showRedNumbers;
          GuiIngameForge.renderObjective = show;
       }
    }
@@ -33,7 +33,7 @@ public class ScoreboardHandler {
       if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) {
          return;
       }
-      if (FastTrading.cooldownConfig != null && FastTrading.cooldownConfig.showRedNumbers) {
+      if (FastTrading.settingsConfig != null && FastTrading.settingsConfig.showRedNumbers) {
          return;
       }
       if (this.mc.world == null || this.mc.player == null) {

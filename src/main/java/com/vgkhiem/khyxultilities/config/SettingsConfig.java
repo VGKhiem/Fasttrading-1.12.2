@@ -9,7 +9,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class CooldownConfig {
+public class SettingsConfig {
    public int fastTradeCooldown = 50;
    public int guiClickCooldown = 100;
    public String buttonPosition = "RIGHT";
@@ -52,38 +52,31 @@ public class CooldownConfig {
    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
    private static File configFile;
 
-   public static CooldownConfig load(File folder) {
+   public static SettingsConfig load(File folder) {
       if (!folder.exists()) {
          folder.mkdirs();
       }
       configFile = new File(folder, "settings.json");
-      File oldConfigFile = new File(folder, "cooldown.json");
-      if (!configFile.exists() && oldConfigFile.exists()) {
-         try {
-            oldConfigFile.renameTo(configFile);
-         } catch (Exception ignored) {
-         }
-      }
       if (!configFile.exists()) {
-         CooldownConfig cfg = new CooldownConfig();
+         SettingsConfig cfg = new SettingsConfig();
          save(cfg);
          return cfg;
       }
       try (JsonReader reader = new JsonReader(new FileReader(configFile))) {
-         CooldownConfig cfg = GSON.fromJson(reader, CooldownConfig.class);
+         SettingsConfig cfg = GSON.fromJson(reader, SettingsConfig.class);
          if (cfg == null) {
-            cfg = new CooldownConfig();
+            cfg = new SettingsConfig();
             save(cfg);
          }
          return cfg;
       } catch (Exception e) {
-         CooldownConfig cfg = new CooldownConfig();
+         SettingsConfig cfg = new SettingsConfig();
          save(cfg);
          return cfg;
       }
    }
 
-   public static void save(CooldownConfig cfg) {
+   public static void save(SettingsConfig cfg) {
       if (configFile == null) {
          return;
       }
