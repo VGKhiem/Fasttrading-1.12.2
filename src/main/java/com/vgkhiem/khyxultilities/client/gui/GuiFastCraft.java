@@ -9,6 +9,7 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -29,6 +30,7 @@ import org.lwjgl.input.Mouse;
 
 public class GuiFastCraft {
    public static final int PANEL_WIDTH = 76;
+   private static final int BTN_AUTOCRAFT_ID = 8802;
 
    private static Field guiLeftField;
    private static Field guiTopField;
@@ -37,6 +39,7 @@ public class GuiFastCraft {
 
    private Minecraft mc = Minecraft.getMinecraft();
    private GuiTextField searchField;
+   private GuiButton autoCraftBtn;
    private List<CraftableRecipe> allRecipes = new ArrayList<>();
    private List<CraftableRecipe> filteredRecipes = new ArrayList<>();
    private long lastScanTime = 0;
@@ -111,6 +114,21 @@ public class GuiFastCraft {
       return 166;
    }
 
+   public static int getAutoCraftButtonX(GuiContainer gui) {
+      int panelX = getPanelX(gui);
+      if (panelX + PANEL_WIDTH + 22 <= gui.width) {
+         return panelX + PANEL_WIDTH + 2;
+      } else if (panelX - 22 >= 2) {
+         return panelX - 22;
+      }
+      return panelX + PANEL_WIDTH + 2;
+   }
+
+   private String getAutoCraftButtonText() {
+      boolean isAuto = FastCraftConfig.get().isAutoCraftEnabled();
+      return (isAuto ? TextFormatting.GREEN : TextFormatting.RED) + TextFormatting.BOLD.toString() + "A";
+   }
+
    @SubscribeEvent
    public void onInitGui(GuiScreenEvent.InitGuiEvent.Post event) {
       if (!(event.getGui() instanceof GuiContainer)) {
@@ -128,6 +146,13 @@ public class GuiFastCraft {
       this.searchField.setMaxStringLength(32);
       this.searchField.setText(lastSearchText);
       this.searchField.setEnableBackgroundDrawing(true);
+
+      int btnSize = 20;
+      int btnX = getAutoCraftButtonX(gui);
+      int btnY = panelY + 1;
+      this.autoCraftBtn = new GuiButton(BTN_AUTOCRAFT_ID, btnX, btnY, btnSize, btnSize, getAutoCraftButtonText());
+      this.autoCraftBtn.visible = isFastCraftEnabled();
+      event.getButtonList().add(this.autoCraftBtn);
 
       refreshRecipes(gui);
       this.scrollRow = 0;
@@ -161,6 +186,12 @@ public class GuiFastCraft {
       if (this.searchField != null) {
          this.searchField.x = panelX + 4;
          this.searchField.y = panelY + 4;
+      }
+      if (this.autoCraftBtn != null) {
+         this.autoCraftBtn.x = getAutoCraftButtonX(gui);
+         this.autoCraftBtn.y = panelY + 1;
+         this.autoCraftBtn.displayString = getAutoCraftButtonText();
+         this.autoCraftBtn.visible = isFastCraftEnabled();
       }
    }
 
@@ -292,6 +323,14 @@ public class GuiFastCraft {
          }
          GuiUtils.drawHoveringText(this.hoveredStack, tip, mouseX, mouseY, gui.width, gui.height, -1, this.mc.fontRenderer);
       }
+
+      if (this.autoCraftBtn != null && this.autoCraftBtn.visible && this.autoCraftBtn.isMouseOver()) {
+         List<String> tip = new ArrayList<>();
+         boolean isAuto = FastCraftConfig.get().isAutoCraftEnabled();
+         tip.add(TextFormatting.YELLOW + "Auto-Craft: " + (isAuto ? TextFormatting.GREEN + "ON" : TextFormatting.RED + "OFF"));
+         tip.add(TextFormatting.GRAY + "Click to toggle automated crafting");
+         GuiUtils.drawHoveringText(tip, mouseX, mouseY, gui.width, gui.height, -1, this.mc.fontRenderer);
+      }
    }
 
    @SubscribeEvent
@@ -403,10 +442,29 @@ public class GuiFastCraft {
    }
 
    @SubscribeEvent
+   public void onActionPerformed(GuiScreenEvent.ActionPerformedEvent.Pre event) {
+      if (event.getButton().id == BTN_AUTOCRAFT_ID) {
+         boolean newState = !FastCraftConfig.get().isAutoCraftEnabled();
+         FastCraftConfig.get().setAutoCraftEnabled(newState);
+         FastCraftConfig.get().save();
+         event.getButton().displayString = getAutoCraftButtonText();
+         if (event.getGui() instanceof GuiContainer) {
+            GuiContainer gui = (GuiContainer) event.getGui();
+            if (newState) {
+               FastCraftHelper.performAutoCraft(gui);
+            }
+            refreshRecipes(gui);
+         }
+         event.setCanceled(true);
+      }
+   }
+
+   @SubscribeEvent
    public void onGuiOpen(GuiOpenEvent event) {
       this.autoCraftTriggeredForCurrentGui = false;
       if (event.getGui() == null) {
          this.searchField = null;
+         this.autoCraftBtn = null;
          this.hoveredStack = ItemStack.EMPTY;
          this.hoveredRecipe = null;
       }
