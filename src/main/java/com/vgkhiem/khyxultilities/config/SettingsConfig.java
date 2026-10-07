@@ -13,7 +13,7 @@ public class SettingsConfig {
    public int fastTradeCooldown = 50;
    public int guiClickCooldown = 100;
    public String buttonPosition = "RIGHT";
-   public boolean showRedNumbers = false;
+   public boolean betterScoreboard = true;
 
    public enum ButtonPosition {
       RIGHT("Right"),

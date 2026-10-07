@@ -21,14 +21,14 @@ public class FastTradingConfigGui extends GuiScreen {
    private GuiButton fastCraftButton;
    private GuiButton fastCraftPosButton;
    private GuiButton autoCraftButton;
-   private GuiButton scoreNumbersButton;
+   private GuiButton betterScoreboardButton;
    private GuiButton doneButton;
    private GuiButton resetButton;
    private GuiButton cancelButton;
    private boolean currentAuto;
    private boolean currentFastCraft;
    private boolean currentAutoCraft;
-   private boolean currentShowRedNumbers;
+   private boolean currentBetterScoreboard;
    private SettingsConfig.ButtonPosition currentPos;
    private FastCraftConfig.ButtonPosition currentFastCraftPos;
    private ProxyConfig.ButtonPosition currentProxyPos;
@@ -40,7 +40,7 @@ public class FastTradingConfigGui extends GuiScreen {
       this.currentFastCraft = FastCraftConfig.get().isFastCraftEnabled();
       this.currentFastCraftPos = FastCraftConfig.get().getFastCraftPosition();
       this.currentAutoCraft = FastCraftConfig.get().isAutoCraftEnabled();
-      this.currentShowRedNumbers = FastTrading.settingsConfig != null && FastTrading.settingsConfig.showRedNumbers;
+      this.currentBetterScoreboard = FastTrading.settingsConfig == null || FastTrading.settingsConfig.betterScoreboard;
       this.currentProxyPos = ProxyConfig.get().getButtonPosition();
    }
 
@@ -82,8 +82,8 @@ public class FastTradingConfigGui extends GuiScreen {
       this.autoCraftButton = new GuiButton(1009, col2X, 134, colW, 20, getAutoCraftText());
       this.buttonList.add(this.autoCraftButton);
 
-      this.scoreNumbersButton = new GuiButton(1010, col2X, 164, colW, 20, getScoreNumbersText());
-      this.buttonList.add(this.scoreNumbersButton);
+      this.betterScoreboardButton = new GuiButton(1010, col2X, 164, colW, 20, getBetterScoreboardText());
+      this.buttonList.add(this.betterScoreboardButton);
 
       int bottomY = this.height - 35;
       this.doneButton = new GuiButton(1002, centerX - 155, bottomY, 100, 20, "Save & Close");
@@ -119,8 +119,8 @@ public class FastTradingConfigGui extends GuiScreen {
       return "Craft Position: " + TextFormatting.YELLOW + this.currentFastCraftPos.getDisplayName();
    }
 
-   private String getScoreNumbersText() {
-      return "Red Numbers: " + (this.currentShowRedNumbers ? TextFormatting.GREEN + "ON" : TextFormatting.RED + "OFF");
+   private String getBetterScoreboardText() {
+      return "Better Scoreboard: " + (this.currentBetterScoreboard ? TextFormatting.GREEN + "ON" : TextFormatting.RED + "OFF");
    }
 
    @Override
@@ -210,8 +210,8 @@ public class FastTradingConfigGui extends GuiScreen {
          this.currentAutoCraft = !this.currentAutoCraft;
          this.autoCraftButton.displayString = getAutoCraftText();
       } else if (button.id == 1010) {
-         this.currentShowRedNumbers = !this.currentShowRedNumbers;
-         this.scoreNumbersButton.displayString = getScoreNumbersText();
+         this.currentBetterScoreboard = !this.currentBetterScoreboard;
+         this.betterScoreboardButton.displayString = getBetterScoreboardText();
       } else if (button.id == 1002) {
          try {
             int ft = Integer.parseInt(this.fastTradeField.getText().trim());
@@ -230,10 +230,10 @@ public class FastTradingConfigGui extends GuiScreen {
          }
 
          if (FastTrading.settingsConfig != null) {
-            FastTrading.settingsConfig.showRedNumbers = this.currentShowRedNumbers;
+            FastTrading.settingsConfig.betterScoreboard = this.currentBetterScoreboard;
             FastTrading.settingsConfig.setButtonPosition(this.currentPos);
             SettingsConfig.save(FastTrading.settingsConfig);
-            com.vgkhiem.khyxultilities.eventhandler.ScoreboardHandler.setBetterHudSidebarEnabled(this.currentShowRedNumbers);
+            com.vgkhiem.khyxultilities.eventhandler.ScoreboardHandler.updateScoreboardState(this.currentBetterScoreboard);
          }
 
          FastCraftConfig fcc = FastCraftConfig.get();
@@ -266,8 +266,8 @@ public class FastTradingConfigGui extends GuiScreen {
          this.fastCraftPosButton.displayString = getFastCraftPosText();
          this.currentAutoCraft = true;
          this.autoCraftButton.displayString = getAutoCraftText();
-         this.currentShowRedNumbers = false;
-         this.scoreNumbersButton.displayString = getScoreNumbersText();
+         this.currentBetterScoreboard = true;
+         this.betterScoreboardButton.displayString = getBetterScoreboardText();
       } else if (button.id == 1004) {
          this.mc.displayGuiScreen(this.parentScreen);
       }

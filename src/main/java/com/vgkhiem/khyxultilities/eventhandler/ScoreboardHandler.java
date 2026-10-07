@@ -61,12 +61,17 @@ public class ScoreboardHandler {
       }
    }
 
+   public static void updateScoreboardState(boolean betterScoreboard) {
+      GuiIngameForge.renderObjective = !betterScoreboard;
+      setBetterHudSidebarEnabled(!betterScoreboard);
+   }
+
    @SubscribeEvent(priority = EventPriority.HIGHEST)
    public void onRenderOverlayPre(RenderGameOverlayEvent.Pre event) {
       if (event.getType() == RenderGameOverlayEvent.ElementType.ALL) {
-         boolean show = FastTrading.settingsConfig == null || FastTrading.settingsConfig.showRedNumbers;
-         GuiIngameForge.renderObjective = show;
-         setBetterHudSidebarEnabled(show);
+         boolean better = FastTrading.settingsConfig == null || FastTrading.settingsConfig.betterScoreboard;
+         GuiIngameForge.renderObjective = !better;
+         setBetterHudSidebarEnabled(!better);
       }
    }
 
@@ -75,8 +80,8 @@ public class ScoreboardHandler {
       if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) {
          return;
       }
-      boolean show = FastTrading.settingsConfig == null || FastTrading.settingsConfig.showRedNumbers;
-      if (show) {
+      boolean better = FastTrading.settingsConfig == null || FastTrading.settingsConfig.betterScoreboard;
+      if (!better) {
          return;
       }
       if (this.mc.world == null || this.mc.player == null || this.mc.gameSettings.hideGUI) {
@@ -99,11 +104,11 @@ public class ScoreboardHandler {
 
       ScoreObjective sidebar = objective != null ? objective : scoreboard.getObjectiveInDisplaySlot(1);
       if (sidebar != null) {
-         renderScoreboardWithoutScores(sidebar, event.getResolution());
+         renderBetterScoreboard(sidebar, event.getResolution());
       }
    }
 
-   private void renderScoreboardWithoutScores(ScoreObjective objective, ScaledResolution resolution) {
+   private void renderBetterScoreboard(ScoreObjective objective, ScaledResolution resolution) {
       Scoreboard scoreboard = objective.getScoreboard();
       if (scoreboard == null) {
          return;
