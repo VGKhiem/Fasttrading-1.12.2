@@ -1,6 +1,8 @@
 package com.vgkhiem.khyxultilities.eventhandler;
 
 import com.vgkhiem.khyxultilities.FastTrading;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -15,16 +17,56 @@ import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class ScoreboardHandler {
    private final Minecraft mc = Minecraft.getMinecraft();
+   private static boolean betterHudChecked = false;
+   private static Object betterHudSidebar = null;
+   private static Method betterHudSetMethod = null;
+   private static Method betterHudGetMethod = null;
 
-   @SubscribeEvent
+   private static void initBetterHud() {
+      if (betterHudChecked) {
+         return;
+      }
+      betterHudChecked = true;
+      try {
+         Class<?> hudElementClass = Class.forName("jobicade.betterhud.element.HudElement");
+         Field sidebarField = hudElementClass.getField("SIDEBAR");
+         betterHudSidebar = sidebarField.get(null);
+         betterHudSetMethod = hudElementClass.getMethod("set", Boolean.class);
+         betterHudGetMethod = hudElementClass.getMethod("get");
+      } catch (Throwable ignored) {
+         betterHudSidebar = null;
+         betterHudSetMethod = null;
+         betterHudGetMethod = null;
+      }
+   }
+
+   public static void setBetterHudSidebarEnabled(boolean enabled) {
+      initBetterHud();
+      if (betterHudSidebar != null && betterHudSetMethod != null) {
+         try {
+            if (betterHudGetMethod != null) {
+               Object currentVal = betterHudGetMethod.invoke(betterHudSidebar);
+               if (Boolean.valueOf(enabled).equals(currentVal)) {
+                  return;
+               }
+            }
+            betterHudSetMethod.invoke(betterHudSidebar, Boolean.valueOf(enabled));
+         } catch (Throwable ignored) {
+         }
+      }
+   }
+
+   @SubscribeEvent(priority = EventPriority.HIGHEST)
    public void onRenderOverlayPre(RenderGameOverlayEvent.Pre event) {
       if (event.getType() == RenderGameOverlayEvent.ElementType.ALL) {
          boolean show = FastTrading.settingsConfig == null || FastTrading.settingsConfig.showRedNumbers;
          GuiIngameForge.renderObjective = show;
+         setBetterHudSidebarEnabled(show);
       }
    }
 
@@ -33,10 +75,11 @@ public class ScoreboardHandler {
       if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) {
          return;
       }
-      if (FastTrading.settingsConfig != null && FastTrading.settingsConfig.showRedNumbers) {
+      boolean show = FastTrading.settingsConfig == null || FastTrading.settingsConfig.showRedNumbers;
+      if (show) {
          return;
       }
-      if (this.mc.world == null || this.mc.player == null) {
+      if (this.mc.world == null || this.mc.player == null || this.mc.gameSettings.hideGUI) {
          return;
       }
 

@@ -233,6 +233,7 @@ public class FastTradingConfigGui extends GuiScreen {
             FastTrading.settingsConfig.showRedNumbers = this.currentShowRedNumbers;
             FastTrading.settingsConfig.setButtonPosition(this.currentPos);
             SettingsConfig.save(FastTrading.settingsConfig);
+            com.vgkhiem.khyxultilities.eventhandler.ScoreboardHandler.setBetterHudSidebarEnabled(this.currentShowRedNumbers);
          }
 
          FastCraftConfig fcc = FastCraftConfig.get();
