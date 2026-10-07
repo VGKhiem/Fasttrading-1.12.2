@@ -27,8 +27,6 @@ public class GuiMerchantOverride extends GuiMerchant {
    public TradingHelper helper = new TradingHelper(this);
    public MerchantRecipeList merchantRecipeList;
    private IMerchant iMerchant;
-   private int lastClickTime;
-   private GuiButton lastClickButton;
    private ArrayList<GuiRecipeButton> recipeButtonList = new ArrayList();
    private GuiIconButton onButton;
    private GuiIconButton offButton;
@@ -149,60 +147,50 @@ public class GuiMerchantOverride extends GuiMerchant {
    }
 
    protected void actionPerformed(GuiButton button) throws IOException {
-      int currentTime = (int)System.currentTimeMillis() % Integer.MAX_VALUE;
       super.actionPerformed(button);
       if (this.merchantRecipeList == null) {
          this.merchantRecipeList = this.iMerchant.getRecipes(this.mc.player);
       }
-
-      GuiButton button1 = this.getFirstButton();
-      if (button == button1) {
-         MerchantRecipe recipe = (MerchantRecipe)this.merchantRecipeList.get(this.selectedMerchantRecipe);
-         ConfigJson.SimpleRecipe currentRecipe = (ConfigJson.SimpleRecipe)this.helper.map.get(recipe);
-         if (!button.enabled || !button.visible) {
-            return;
-         }
-
-         if (this.recipeButtonList.contains(button)) {
-            int recipeIndex = button.id - 300;
-            this.setCurrentRecipe(recipeIndex);
-            if (this.lastClickTime > currentTime - 500 && this.lastClickButton == button) {
-               if (isShiftKeyDown()) {
-                  this.startNonBlockingTrading(recipeIndex, false);
-               } else {
-                  int trades = this.helper.tradingOnce((MerchantRecipe)this.merchantRecipeList.get(recipeIndex), recipeIndex);
-                  FakeSubtitleSound.playTradeFeedback(trades);
-               }
-
-               this.lastClickButton = null;
-               this.lastClickTime = 0;
-            } else {
-               this.lastClickButton = button;
-               this.lastClickTime = currentTime;
-            }
-         } else if (button.id == 250) {
-            FastTrading.configLoader.config.setAuto(true);
-            this.startNonBlockingTrading(-1, true);
-         } else if (button.id == 251) {
-            FastTrading.configLoader.config.setAuto(false);
-            this.stopTradingSession();
-         } else if (button.id == 252) {
-            ConfigJson.SimpleRecipe recipe1 = new ConfigJson.SimpleRecipe(false, recipe);
-            FastTrading.configLoader.recipeList.add(recipe1);
-            this.helper.map.put(recipe, recipe1);
-         } else if (button.id == 253) {
-            FastTrading.configLoader.recipeList.remove(currentRecipe);
-            this.helper.map.remove(recipe);
-         } else if (button.id == 254) {
-            ConfigJson.SimpleRecipe recipe1 = new ConfigJson.SimpleRecipe(true, recipe);
-            FastTrading.configLoader.recipeList.remove(currentRecipe);
-            FastTrading.configLoader.recipeList.add(recipe1);
-            this.helper.map.put(recipe, recipe1);
-         } else if (button.id == 255 && null != currentRecipe) {
-            currentRecipe.setLockPrice(false);
-         }
+      if (!button.enabled || !button.visible) {
+         return;
       }
 
+      if (this.recipeButtonList.contains(button)) {
+         int recipeIndex = button.id - 300;
+         this.setCurrentRecipe(recipeIndex);
+         if (isShiftKeyDown()) {
+            this.startNonBlockingTrading(recipeIndex, false);
+         } else {
+            int trades = this.helper.tradingOnce((MerchantRecipe)this.merchantRecipeList.get(recipeIndex), recipeIndex);
+            FakeSubtitleSound.playTradeFeedback(trades);
+         }
+         return;
+      }
+
+      MerchantRecipe recipe = (MerchantRecipe)this.merchantRecipeList.get(this.selectedMerchantRecipe);
+      ConfigJson.SimpleRecipe currentRecipe = (ConfigJson.SimpleRecipe)this.helper.map.get(recipe);
+
+      if (button.id == 250) {
+         FastTrading.configLoader.config.setAuto(true);
+         this.startNonBlockingTrading(-1, true);
+      } else if (button.id == 251) {
+         FastTrading.configLoader.config.setAuto(false);
+         this.stopTradingSession();
+      } else if (button.id == 252) {
+         ConfigJson.SimpleRecipe recipe1 = new ConfigJson.SimpleRecipe(false, recipe);
+         FastTrading.configLoader.recipeList.add(recipe1);
+         this.helper.map.put(recipe, recipe1);
+      } else if (button.id == 253) {
+         FastTrading.configLoader.recipeList.remove(currentRecipe);
+         this.helper.map.remove(recipe);
+      } else if (button.id == 254) {
+         ConfigJson.SimpleRecipe recipe1 = new ConfigJson.SimpleRecipe(true, recipe);
+         FastTrading.configLoader.recipeList.remove(currentRecipe);
+         FastTrading.configLoader.recipeList.add(recipe1);
+         this.helper.map.put(recipe, recipe1);
+      } else if (button.id == 255 && null != currentRecipe) {
+         currentRecipe.setLockPrice(false);
+      }
    }
 
    private void addFunctionButton() {

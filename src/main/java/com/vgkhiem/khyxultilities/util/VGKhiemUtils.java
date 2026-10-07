@@ -11,6 +11,7 @@ import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagLongArray;
 import net.minecraft.nbt.NBTTagString;
+import net.minecraft.nbt.NBTUtil;
 
 public class VGKhiemUtils {
    public static String[] tooltipI18n(String s, Object... args) {
@@ -28,13 +29,27 @@ public class VGKhiemUtils {
          return false;
       } else if (stackA.getItem() != stackB.getItem()) {
          return false;
-      } else if (stackA.getItemDamage() != stackB.getItemDamage()) {
+      } else if (stackA.getItemDamage() != stackB.getItemDamage() && stackA.getItemDamage() != 32767 && stackB.getItemDamage() != 32767) {
          return false;
-      } else if (!ItemStack.areItemStackTagsEqual(stackA, stackB)) {
-         return false;
-      } else {
-         return stackA.areCapsCompatible(stackB);
       }
+
+      if (ItemStack.areItemStackTagsEqual(stackA, stackB)) {
+         return true;
+      }
+      boolean emptyA = !stackA.hasTagCompound() || stackA.getTagCompound().isEmpty();
+      boolean emptyB = !stackB.hasTagCompound() || stackB.getTagCompound().isEmpty();
+
+      if (emptyA && emptyB) {
+         return true;
+      }
+      if (emptyB) {
+         return true;
+      }
+      if (emptyA) {
+         return false;
+      }
+      return NBTUtil.areNBTEquals(stackB.getTagCompound(), stackA.getTagCompound(), false)
+          || NBTUtil.areNBTEquals(stackA.getTagCompound(), stackB.getTagCompound(), false);
    }
 
    public static boolean areNbtEqual(NBTBase nbtA, NBTBase nbtB) {
@@ -77,9 +92,7 @@ public class VGKhiemUtils {
                }
 
                if (nbtA instanceof NBTPrimitive) {
-                  NBTPrimitive byteA = (NBTPrimitive)nbtA;
-                  NBTPrimitive byteB = (NBTPrimitive)nbtB;
-                  return byteA.getByte() == byteB.getByte();
+                  return nbtA.equals(nbtB);
                }
 
                if (nbtA instanceof NBTTagString) {
