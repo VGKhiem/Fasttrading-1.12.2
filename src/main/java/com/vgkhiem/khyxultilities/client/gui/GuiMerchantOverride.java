@@ -27,6 +27,8 @@ public class GuiMerchantOverride extends GuiMerchant {
    public TradingHelper helper = new TradingHelper(this);
    public MerchantRecipeList merchantRecipeList;
    private IMerchant iMerchant;
+   private int lastClickTime;
+   private GuiButton lastClickButton;
    private ArrayList<GuiRecipeButton> recipeButtonList = new ArrayList();
    private GuiIconButton onButton;
    private GuiIconButton offButton;
@@ -147,6 +149,7 @@ public class GuiMerchantOverride extends GuiMerchant {
    }
 
    protected void actionPerformed(GuiButton button) throws IOException {
+      int currentTime = (int)System.currentTimeMillis() % Integer.MAX_VALUE;
       super.actionPerformed(button);
       if (this.merchantRecipeList == null) {
          this.merchantRecipeList = this.iMerchant.getRecipes(this.mc.player);
@@ -158,11 +161,19 @@ public class GuiMerchantOverride extends GuiMerchant {
       if (this.recipeButtonList.contains(button)) {
          int recipeIndex = button.id - 300;
          this.setCurrentRecipe(recipeIndex);
-         if (isShiftKeyDown()) {
-            this.startNonBlockingTrading(recipeIndex, false);
+         if (this.lastClickTime > currentTime - 500 && this.lastClickButton == button) {
+            if (isShiftKeyDown()) {
+               this.startNonBlockingTrading(recipeIndex, false);
+            } else {
+               int trades = this.helper.tradingOnce((MerchantRecipe)this.merchantRecipeList.get(recipeIndex), recipeIndex);
+               FakeSubtitleSound.playTradeFeedback(trades);
+            }
+
+            this.lastClickButton = null;
+            this.lastClickTime = 0;
          } else {
-            int trades = this.helper.tradingOnce((MerchantRecipe)this.merchantRecipeList.get(recipeIndex), recipeIndex);
-            FakeSubtitleSound.playTradeFeedback(trades);
+            this.lastClickButton = button;
+            this.lastClickTime = currentTime;
          }
          return;
       }
