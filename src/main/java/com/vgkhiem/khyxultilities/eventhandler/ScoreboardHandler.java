@@ -1,8 +1,6 @@
 package com.vgkhiem.khyxultilities.eventhandler;
 
 import com.vgkhiem.khyxultilities.FastTrading;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -22,48 +20,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class ScoreboardHandler {
    private final Minecraft mc = Minecraft.getMinecraft();
-   private static boolean betterHudChecked = false;
-   private static Object betterHudSidebar = null;
-   private static Method betterHudSetMethod = null;
-   private static Method betterHudGetMethod = null;
-
-   private static void initBetterHud() {
-      if (betterHudChecked) {
-         return;
-      }
-      betterHudChecked = true;
-      try {
-         Class<?> hudElementClass = Class.forName("jobicade.betterhud.element.HudElement");
-         Field sidebarField = hudElementClass.getField("SIDEBAR");
-         betterHudSidebar = sidebarField.get(null);
-         betterHudSetMethod = hudElementClass.getMethod("set", Boolean.class);
-         betterHudGetMethod = hudElementClass.getMethod("get");
-      } catch (Throwable ignored) {
-         betterHudSidebar = null;
-         betterHudSetMethod = null;
-         betterHudGetMethod = null;
-      }
-   }
-
-   public static void setBetterHudSidebarEnabled(boolean enabled) {
-      initBetterHud();
-      if (betterHudSidebar != null && betterHudSetMethod != null) {
-         try {
-            if (betterHudGetMethod != null) {
-               Object currentVal = betterHudGetMethod.invoke(betterHudSidebar);
-               if (Boolean.valueOf(enabled).equals(currentVal)) {
-                  return;
-               }
-            }
-            betterHudSetMethod.invoke(betterHudSidebar, Boolean.valueOf(enabled));
-         } catch (Throwable ignored) {
-         }
-      }
-   }
 
    public static void updateScoreboardState(boolean betterScoreboard) {
       GuiIngameForge.renderObjective = !betterScoreboard;
-      setBetterHudSidebarEnabled(!betterScoreboard);
    }
 
    @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -71,7 +30,6 @@ public class ScoreboardHandler {
       if (event.getType() == RenderGameOverlayEvent.ElementType.ALL) {
          boolean better = FastTrading.settingsConfig == null || FastTrading.settingsConfig.betterScoreboard;
          GuiIngameForge.renderObjective = !better;
-         setBetterHudSidebarEnabled(!better);
       }
    }
 
