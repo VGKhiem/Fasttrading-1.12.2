@@ -13,6 +13,7 @@ public class CooldownConfig {
    public int fastTradeCooldown = 50;
    public int guiClickCooldown = 100;
    public String buttonPosition = "RIGHT";
+   public boolean showRedNumbers = false;
 
    public enum ButtonPosition {
       RIGHT("Right"),
@@ -55,7 +56,14 @@ public class CooldownConfig {
       if (!folder.exists()) {
          folder.mkdirs();
       }
-      configFile = new File(folder, "cooldown.json");
+      configFile = new File(folder, "settings.json");
+      File oldConfigFile = new File(folder, "cooldown.json");
+      if (!configFile.exists() && oldConfigFile.exists()) {
+         try {
+            oldConfigFile.renameTo(configFile);
+         } catch (Exception ignored) {
+         }
+      }
       if (!configFile.exists()) {
          CooldownConfig cfg = new CooldownConfig();
          save(cfg);

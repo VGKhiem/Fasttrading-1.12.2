@@ -60,7 +60,7 @@ A Minecraft Forge 1.12.2 client-side utility mod featuring Fast Crafting, Fast V
 ### 5. Configuration & In-Game GUI
 - Unified configuration directory: `.minecraft/config/khyxultilities/`
   - `fasttrading.json`: Fast trading settings and trade locks.
-  - `cooldown.json`: Click cooldowns (`fastTradeCooldown: 50ms`, `guiClickCooldown: 100ms`).
+  - `settings.json`: General settings, cooldowns, and red numbers toggle (`fastTradeCooldown: 50ms`, `guiClickCooldown: 100ms`, `showRedNumbers: false`).
 - **In-Game Mod Options**: Fully configurable in-game via `Mod Options -> KhyxUltilities -> Config` with live saving without restarting Minecraft.
 
 ---

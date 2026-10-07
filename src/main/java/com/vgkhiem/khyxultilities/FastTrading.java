@@ -41,6 +41,7 @@ public class FastTrading {
       MinecraftForge.EVENT_BUS.register(new GuiSpamClicker());
       MinecraftForge.EVENT_BUS.register(new com.vgkhiem.khyxultilities.client.gui.GuiFastCraft());
       MinecraftForge.EVENT_BUS.register(new GuiMultiplayerHandler());
+      MinecraftForge.EVENT_BUS.register(new com.vgkhiem.khyxultilities.eventhandler.ScoreboardHandler());
       MinecraftForge.EVENT_BUS.register(this);
       new KeyLoader();
       NpcMerchant.class.getName();
